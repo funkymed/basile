@@ -1,0 +1,54 @@
+{
+  "name": "@basile/cli",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "BASILE CLI — multi-stack audit runner",
+  "bin": {
+    "basile": "./dist/bin/run.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "oclif": {
+    "bin": "basile",
+    "dirname": "basile",
+    "commands": "./dist/commands",
+    "topicSeparator": " "
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@basile/core": "workspace:*",
+    "@basile/reporter-markdown": "workspace:*",
+    "@basile/reporter-pdf": "workspace:*",
+    "@basile/runner": "workspace:*",
+    "@basile/scanner-eslint": "workspace:*",
+    "@basile/scanner-lighthouse": "workspace:*",
+    "@basile/scanner-phpstan": "workspace:*",
+    "@clack/prompts": "^0.7.0",
+    "@oclif/core": "^4.0.0",
+    "boxen": "^8.0.1",
+    "cli-table3": "^0.6.5",
+    "figlet": "^1.7.0",
+    "gradient-string": "^3.0.0",
+    "picocolors": "^1.1.0",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "@types/node": "^22.7.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

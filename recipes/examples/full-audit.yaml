@@ -1,0 +1,48 @@
+# Exemple cookbook BASILE — audit complet multi-stack
+name: audit-client-x
+output: ./reports/{{date}}-{{name}}
+parallel: 4
+
+targets:
+  - id: api
+    type: code
+    path: ./apps/api
+    stacks: [php, symfony]
+    scanners:
+      - phpstan
+      - phpcs
+      - composer-audit
+      - semgrep
+      - bearer
+      - gitleaks
+      - trivy
+
+  - id: web
+    type: code
+    path: ./apps/web
+    stacks: [typescript, react]
+    scanners:
+      - eslint
+      - tsc
+      - knip
+      - depcheck
+      - npm-audit
+      - semgrep
+      - bearer
+
+  - id: prod
+    type: url
+    url: https://app.client.fr
+    scanners:
+      - lighthouse
+      - pa11y
+      - zap-baseline
+      - nuclei
+      - headers
+      - ssllabs-scan
+
+report:
+  formats: [md, pdf]
+  template: executive
+  group_by: [target, severity]
+  min_severity: low

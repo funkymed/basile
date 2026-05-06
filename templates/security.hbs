@@ -1,0 +1,79 @@
+# Rapport sécurité — {{recipe.name}}
+
+> Focus : security · secrets · privacy — généré le **{{generatedAt}}**
+
+## Synthèse sécurité
+
+- **Findings security** : {{summary.byCategory.security}}
+- **Findings secrets**  : {{summary.byCategory.secrets}}
+- **Findings privacy**  : {{summary.byCategory.privacy}}
+- **Score pondéré**     : {{summary.score}} / seuil {{summary.scoreThreshold}}
+- **Verdict**           : **{{upper summary.verdict}}**
+
+| Sévérité | Total (toutes catégories) |
+|----------|--------------------------:|
+| {{severityBadge "critical"}} | {{summary.bySeverity.critical}} |
+| {{severityBadge "high"}}     | {{summary.bySeverity.high}} |
+| {{severityBadge "medium"}}   | {{summary.bySeverity.medium}} |
+| {{severityBadge "low"}}      | {{summary.bySeverity.low}} |
+
+## Mapping OWASP Top 10 (2021)
+
+| Catégorie | Description | Findings |
+|-----------|-------------|---------:|
+| A01 | Broken Access Control | {{#each findings}}{{#if this.owasp}}{{#if (eq this.owasp "A01")}}1 {{/if}}{{/if}}{{/each}} |
+| A02 | Cryptographic Failures | — |
+| A03 | Injection | — |
+| A04 | Insecure Design | — |
+| A05 | Security Misconfiguration | — |
+| A06 | Vulnerable & Outdated Components | — |
+| A07 | Identification & Authentication Failures | — |
+| A08 | Software & Data Integrity Failures | — |
+| A09 | Security Logging & Monitoring Failures | — |
+| A10 | Server-Side Request Forgery | — |
+
+> Détail des findings avec mapping OWASP plus bas.
+
+{{#if gaps.length}}
+## Coverage gaps
+
+| Scanner | Cible | Raison |
+|---------|-------|--------|
+{{#each gaps}}| {{this.scanner}} | {{this.target}} | {{this.reason}} |
+{{/each}}
+{{/if}}
+
+## Findings security/secrets/privacy
+
+{{#each findings}}
+{{#if (eq this.category "security")}}
+- {{severityBadge this.severity}} **{{this.scanner}}** {{#if this.rule}}`{{this.rule}}`{{/if}}
+  {{#if this.file}}— `{{this.file}}{{#if this.line}}:{{this.line}}{{/if}}`{{/if}}
+  - {{this.message}}
+  {{#if this.cwe}}- {{cweLink this.cwe}}{{/if}}
+  {{#if this.owasp}}- OWASP : `{{this.owasp}}`{{/if}}
+{{/if}}
+{{#if (eq this.category "secrets")}}
+- {{severityBadge this.severity}} **SECRET** {{this.scanner}} {{#if this.rule}}`{{this.rule}}`{{/if}}
+  {{#if this.file}}— `{{this.file}}{{#if this.line}}:{{this.line}}{{/if}}`{{/if}}
+  - {{truncate this.message 120}}
+{{/if}}
+{{#if (eq this.category "privacy")}}
+- {{severityBadge this.severity}} **PRIVACY** {{this.scanner}} {{#if this.rule}}`{{this.rule}}`{{/if}}
+  {{#if this.file}}— `{{this.file}}{{#if this.line}}:{{this.line}}{{/if}}`{{/if}}
+  - {{this.message}}
+{{/if}}
+{{/each}}
+
+## Top règles security
+
+{{#if summary.topRules.length}}
+| Règle | Sévérité | Occurrences |
+|-------|----------|------------:|
+{{#each summary.topRules}}| `{{this.rule}}` | {{severityBadge this.severity}} | {{this.count}} |
+{{/each}}
+{{/if}}
+
+---
+
+_Rapport sécurité Basile — {{generatedAt}}_

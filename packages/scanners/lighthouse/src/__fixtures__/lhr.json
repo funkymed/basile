@@ -1,0 +1,40 @@
+{
+  "audits": {
+    "first-contentful-paint": {
+      "id": "first-contentful-paint",
+      "title": "First Contentful Paint",
+      "description": "FCP marks the time at which the first text or image is painted.",
+      "score": 0.4
+    },
+    "color-contrast": {
+      "id": "color-contrast",
+      "title": "Background and foreground colors have a sufficient contrast ratio",
+      "description": "Low-contrast text is difficult or impossible to read.",
+      "score": 0.7
+    },
+    "is-on-https": {
+      "id": "is-on-https",
+      "title": "Uses HTTPS",
+      "score": 1
+    },
+    "image-aspect-ratio": {
+      "id": "image-aspect-ratio",
+      "title": "Displays images with correct aspect ratio",
+      "score": 0.85
+    }
+  },
+  "categories": {
+    "performance": {
+      "id": "performance",
+      "auditRefs": [{ "id": "first-contentful-paint", "group": "metrics" }]
+    },
+    "accessibility": {
+      "id": "accessibility",
+      "auditRefs": [{ "id": "color-contrast" }]
+    },
+    "best-practices": {
+      "id": "best-practices",
+      "auditRefs": [{ "id": "is-on-https" }, { "id": "image-aspect-ratio" }]
+    }
+  }
+}

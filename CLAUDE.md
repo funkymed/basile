@@ -1,4 +1,4 @@
-# CLAUDE.md — basile
+# CLAUDE.md — BASILE
 
 ## Output Constraints
 - Réponses concises, évite le mur de texte

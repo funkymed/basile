@@ -1,0 +1,27 @@
+{
+  "totals": { "errors": 0, "file_errors": 2 },
+  "files": {
+    "/app/src/Service/Foo.php": {
+      "errors": 1,
+      "messages": [
+        {
+          "message": "Method Foo::bar() has no return type specified.",
+          "line": 12,
+          "identifier": "missingType.return",
+          "ignorable": true
+        }
+      ]
+    },
+    "/app/src/Controller/BarController.php": {
+      "errors": 1,
+      "messages": [
+        {
+          "message": "Undefined variable: $x",
+          "line": 33,
+          "ignorable": true
+        }
+      ]
+    }
+  },
+  "errors": []
+}

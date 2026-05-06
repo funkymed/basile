@@ -1,0 +1,79 @@
+# Rapport technique — {{recipe.name}}
+
+> Généré le **{{generatedAt}}**
+
+## Synthèse
+
+- **Findings totaux** : {{summary.totalFindings}}
+- **Score pondéré**  : {{summary.score}} (seuil {{summary.scoreThreshold}})
+- **Verdict**        : **{{upper summary.verdict}}**
+
+### Distribution par sévérité
+
+| Sévérité | Total |
+|----------|------:|
+| {{severityBadge "critical"}} | {{summary.bySeverity.critical}} |
+| {{severityBadge "high"}}     | {{summary.bySeverity.high}} |
+| {{severityBadge "medium"}}   | {{summary.bySeverity.medium}} |
+| {{severityBadge "low"}}      | {{summary.bySeverity.low}} |
+| {{severityBadge "info"}}     | {{summary.bySeverity.info}} |
+
+### Distribution par scanner
+
+| Scanner | Total |
+|---------|------:|
+{{#each summary.byScanner}}| {{@key}} | {{this}} |
+{{/each}}
+
+{{#if gaps.length}}
+## Coverage gaps
+
+| Scanner | Cible | Raison |
+|---------|-------|--------|
+{{#each gaps}}| {{this.scanner}} | {{this.target}} | {{this.reason}} |
+{{/each}}
+{{/if}}
+
+## Findings détaillés
+
+{{#each (groupBy findings "target")}}
+### Cible : `{{@key}}`
+
+{{#each (groupBy this "severity")}}
+#### {{severityBadge @key}} — {{count this}} finding(s)
+
+{{#each this}}
+- **{{this.scanner}}** {{#if this.rule}}`{{this.rule}}`{{/if}}
+  {{#if this.file}}- Fichier : `{{this.file}}{{#if this.line}}:{{this.line}}{{/if}}`{{/if}}
+  - Message : {{this.message}}
+  {{#if this.cwe}}- {{cweLink this.cwe}}{{/if}}
+  {{#if this.owasp}}- OWASP : `{{this.owasp}}`{{/if}}
+  - Catégorie : `{{this.category}}`
+
+{{/each}}
+{{/each}}
+{{/each}}
+
+## Top 10 règles
+
+{{#if summary.topRules.length}}
+| Règle | Sévérité | Occurrences |
+|-------|----------|------------:|
+{{#each summary.topRules}}| `{{this.rule}}` | {{severityBadge this.severity}} | {{this.count}} |
+{{/each}}
+{{else}}
+_Aucune règle déclenchée._
+{{/if}}
+
+---
+
+## Métadonnées d'exécution
+
+- Démarrage : {{runMeta.startedAt}}
+- Fin       : {{runMeta.endedAt}}
+- Durée     : {{runMeta.durationMs}}ms
+
+### Scanners
+
+{{#each runMeta.scanners}}- **{{this.name}}**{{#if this.version}} `{{this.version}}`{{/if}}
+{{/each}}

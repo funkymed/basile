@@ -1,0 +1,13 @@
+[
+  {
+    "filePath": "/proj/src/a.ts",
+    "messages": [
+      { "ruleId": "no-unused-vars", "severity": 2, "message": "Var x unused", "line": 4, "column": 1 },
+      { "ruleId": "prefer-const", "severity": 1, "message": "Use const", "line": 7 }
+    ]
+  },
+  {
+    "filePath": "/proj/src/b.ts",
+    "messages": []
+  }
+]
