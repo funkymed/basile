@@ -1,5 +1,6 @@
 {
   "name": "basile",
+  "displayName": "BASILE",
   "version": "0.0.1",
   "private": true,
   "description": "CLI d'audit multi-stack à la carte (code + URL) avec cookbook YAML",

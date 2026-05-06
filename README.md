@@ -1,4 +1,4 @@
-# basile
+# BASILE
 
 CLI d'audit multi-stack à la carte. Scanne du code source (PHP/Symfony, WordPress, TypeScript/React/Node) ou des URLs en production. Consolide les résultats en Markdown/PDF sans appel LLM.
 
