@@ -16,7 +16,8 @@
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "pack:cli": "node scripts/pack.mjs"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

@@ -1,0 +1,7 @@
+{
+  "files": ["src/dead.ts"],
+  "dependencies": [{ "name": "lodash" }],
+  "devDependencies": [{ "name": "old-tool" }],
+  "unlisted": [{ "name": "missing-pkg" }],
+  "exports": [{ "file": "src/api.ts", "line": 12, "symbol": "unusedFn" }]
+}

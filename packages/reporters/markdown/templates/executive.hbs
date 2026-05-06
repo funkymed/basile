@@ -1,0 +1,84 @@
+# Rapport — {{recipe.name}}
+
+> Généré le **{{generatedAt}}** — runtime {{runMeta.durationMs}}ms
+
+## Synthèse
+
+```
+┌─────────────────────────────────────────────┐
+│  Findings totaux : {{summary.totalFindings}}
+│  Score pondéré   : {{summary.score}} / seuil {{summary.scoreThreshold}}
+│  Verdict         : {{upper summary.verdict}}
+└─────────────────────────────────────────────┘
+```
+
+| Sévérité | Total |
+|----------|------:|
+| {{severityBadge "critical"}} | {{summary.bySeverity.critical}} |
+| {{severityBadge "high"}}     | {{summary.bySeverity.high}} |
+| {{severityBadge "medium"}}   | {{summary.bySeverity.medium}} |
+| {{severityBadge "low"}}      | {{summary.bySeverity.low}} |
+| {{severityBadge "info"}}     | {{summary.bySeverity.info}} |
+
+| Catégorie | Total |
+|-----------|------:|
+| security    | {{summary.byCategory.security}} |
+| quality     | {{summary.byCategory.quality}} |
+| performance | {{summary.byCategory.performance}} |
+| a11y        | {{summary.byCategory.a11y}} |
+| deps        | {{summary.byCategory.deps}} |
+| secrets     | {{summary.byCategory.secrets}} |
+| privacy     | {{summary.byCategory.privacy}} |
+
+## Score & verdict
+
+{{#if (eq summary.verdict "pass")}}
+**PASS** — Score {{summary.score}} sous le seuil de {{summary.scoreThreshold}}. Aucun blocage majeur.
+{{/if}}
+{{#if (eq summary.verdict "warn")}}
+**WARN** — Score {{summary.score}} approche du seuil ({{summary.scoreThreshold}}). À surveiller.
+{{/if}}
+{{#if (eq summary.verdict "fail")}}
+**FAIL** — Score {{summary.score}} au-dessus du seuil de {{summary.scoreThreshold}}. Action requise.
+{{/if}}
+
+{{#if gaps.length}}
+## Coverage gaps
+
+| Scanner | Cible | Raison |
+|---------|-------|--------|
+{{#each gaps}}| {{this.scanner}} | {{this.target}} | {{this.reason}} |
+{{/each}}
+{{/if}}
+
+## Top 10 règles
+
+{{#if summary.topRules.length}}
+| # | Règle | Sévérité | Occurrences |
+|--:|-------|----------|------------:|
+{{#each summary.topRules}}| {{@index}} | `{{this.rule}}` | {{severityBadge this.severity}} | {{this.count}} |
+{{/each}}
+{{else}}
+_Aucune règle déclenchée._
+{{/if}}
+
+## Par cible
+
+{{#each (groupBy findings "target")}}
+### Cible : `{{@key}}`
+
+| Sévérité | Scanner | Règle | Fichier | Message |
+|----------|---------|-------|---------|---------|
+{{#each this}}| {{severityBadge this.severity}} | {{this.scanner}} | `{{this.rule}}` | {{#if this.file}}`{{this.file}}{{#if this.line}}:{{this.line}}{{/if}}`{{/if}} | {{truncate this.message 80}} |
+{{/each}}
+
+{{/each}}
+
+---
+
+## Scanners utilisés
+
+{{#each runMeta.scanners}}- **{{this.name}}**{{#if this.version}} `{{this.version}}`{{/if}}
+{{/each}}
+
+_Rapport généré par Basile{{#if runMeta.basileVersion}} v{{runMeta.basileVersion}}{{/if}} — {{generatedAt}}_

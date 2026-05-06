@@ -7,6 +7,10 @@ coverage/
 .env
 .env.local
 reports/
+deploy/
+*.tgz
 .turbo/
 .pnpm-store/
 *.tsbuildinfo
+basile-reports
+cookbook.yaml

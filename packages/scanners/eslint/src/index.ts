@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { exec, ExecError, which, type Finding, type RecipeTarget, type Severity } from '@basile/core';
+import { exec, ExecError, which, mergeExcludes, type Finding, type RecipeTarget, type Severity } from '@basile/core';
 import type { Scanner } from '@basile/runner';
 
 /** ESLint native JSON output element. */
@@ -30,7 +30,9 @@ export const eslintScanner: Scanner = {
     if (!which('eslint')) {
       throw new Error('Binaire "eslint" introuvable. Installer ESLint avant exécution.');
     }
-    const cmd = ['eslint', target.path, '--format=json'];
+    const excludes = mergeExcludes(target.exclude_paths ?? []);
+    const ignoreArgs = excludes.flatMap((e) => ['--ignore-pattern', `**/${e}/**`]);
+    const cmd = ['eslint', target.path, '--format=json', ...ignoreArgs];
     let stdout: string;
     try {
       const r = await exec(cmd, { okExitCodes: [0, 1, 2] });

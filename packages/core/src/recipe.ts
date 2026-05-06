@@ -43,7 +43,31 @@ export const ReportConfig = z.object({
   template: ReportTemplate.default('executive'),
   group_by: z.array(z.enum(['target', 'severity', 'category', 'scanner'])).default(['target', 'severity']),
   exclude_rules: z.array(z.string()).optional(),
+  /**
+   * Granular triage — drop findings matching ALL specified fields.
+   * `path` is a substring match (case-sensitive). Add `reason` for audit trail.
+   */
+  exclude_findings: z
+    .array(
+      z.object({
+        rule: z.string().optional(),
+        scanner: z.string().optional(),
+        target: z.string().optional(),
+        path: z.string().optional(),
+        reason: z.string().optional(),
+      }),
+    )
+    .optional(),
+  /** Hard floor — drop everything below this severity. Overrides smart_filter. */
   min_severity: z.enum(['critical', 'high', 'medium', 'low', 'info']).optional(),
+  /**
+   * Dynamic filter: when ANY critical or high finding exists, hide all
+   * medium/low/info from the report. When the codebase has only medium/low,
+   * show them so the report isn't empty. Default: true.
+   *
+   * Disable with `smart_filter: false` to always show everything.
+   */
+  smart_filter: z.boolean().default(true),
 });
 export type ReportConfig = z.infer<typeof ReportConfig>;
 

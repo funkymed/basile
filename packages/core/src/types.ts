@@ -52,3 +52,77 @@ export const SEVERITY_WEIGHTS: Record<Severity, number> = {
 };
 
 export const SEVERITY_ORDER: Severity[] = ['critical', 'high', 'medium', 'low', 'info'];
+
+/**
+ * Default exclusion patterns applied by all code scanners. Covers package
+ * directories, build artifacts, and tool caches. Recipe `exclude_paths` is
+ * merged with this list (additive).
+ *
+ * Each scanner translates these to its own ignore syntax (--exclude,
+ * --skip-dirs, --ignore-pattern, etc.).
+ */
+export const DEFAULT_EXCLUDES: string[] = [
+  // package managers
+  'node_modules',
+  'vendor',
+  'bower_components',
+  // build outputs
+  'dist',
+  'build',
+  'out',
+  '.next',
+  '.nuxt',
+  '.svelte-kit',
+  '.turbo',
+  '.parcel-cache',
+  // Symfony / Laravel
+  'var/cache',
+  'var/log',
+  'var/sessions',
+  'bootstrap/cache',
+  'storage/framework',
+  'storage/logs',
+  'public/build',
+  'public/bundles',
+  // tests / coverage
+  'coverage',
+  '.nyc_output',
+  '.phpunit.result.cache',
+  // tool caches
+  '.cache',
+  '.eslintcache',
+  '.stylelintcache',
+  '.php-cs-fixer.cache',
+  '.php_cs.cache',
+  '.phpstan.neon.cache',
+  '.psalm.cache',
+  // version control
+  '.git',
+  '.svn',
+  '.hg',
+  // IDE
+  '.idea',
+  '.vscode',
+  // misc
+  'tmp',
+  'temp',
+  '.DS_Store',
+];
+
+/** File patterns (globs) for caches/locks too granular for directory excludes. */
+export const DEFAULT_EXCLUDE_GLOBS: string[] = [
+  '*.cache',
+  '*.log',
+  '*.tsbuildinfo',
+  '*.lock.cache',
+];
+
+/**
+ * Merge default excludes with a recipe target's `exclude_paths`.
+ * Returns deduplicated, normalized list (no leading/trailing slashes).
+ */
+export function mergeExcludes(targetExcludes: readonly string[] = []): string[] {
+  const all = [...DEFAULT_EXCLUDES, ...targetExcludes];
+  const normalized = all.map((p) => p.replace(/^\/+|\/+$/g, ''));
+  return [...new Set(normalized)];
+}

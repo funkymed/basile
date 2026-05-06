@@ -46,6 +46,7 @@ export default class Scan extends Command {
     'auto-install': Flags.boolean({ description: 'Installe les outils manquants sans demander' }),
     'skip-preflight': Flags.boolean({ description: 'Saute la vérification preflight' }),
     'skip-report': Flags.boolean({ description: 'Ne génère pas le rapport final' }),
+    full: Flags.boolean({ description: 'Rapport complet (toutes sévérités, pas de filtre)' }),
     quiet: Flags.boolean({ char: 'q', description: 'Sortie minimale' }),
   };
 
@@ -125,7 +126,8 @@ export default class Scan extends Command {
 
     // ---- Report ----
     if (!flags['skip-report']) {
-      const { summary, mdPath } = await writeReport(outDir, effectiveRecipe, result.findings, coverageGaps.map((g) => ({ scanner: g.scanner, target: g.target, reason: g.reason })), {
+      const { summary, mdPath, filteredOut } = await writeReport(outDir, effectiveRecipe, result.findings, coverageGaps.map((g) => ({ scanner: g.scanner, target: g.target, reason: g.reason })), {
+        full: flags.full ?? false,
         runMeta: {
           startedAt: startedAt.toISOString(),
           endedAt: endedAt.toISOString(),
@@ -153,6 +155,7 @@ export default class Scan extends Command {
           `Score: ${summary.score} (verdict: ${summary.verdict})`,
           errors > 0 ? `${ICON.warn} ${errors} scanner(s) en échec` : `${ICON.ok} aucun échec scanner`,
           coverageGaps.length > 0 ? `${ICON.warn} ${coverageGaps.length} coverage gap(s)` : '',
+          filteredOut > 0 ? `${theme.dim('⊘')} ${filteredOut} finding(s) masqué(s) par défaut (utiliser --full pour rapport complet)` : '',
           '',
           `📂 ${outDir}`,
           `   ├─ report.md`,
@@ -211,7 +214,7 @@ export default class Scan extends Command {
             scanners,
           },
         ],
-        report: { formats: ['md' as const], template: 'executive' as const, group_by: ['target' as const, 'severity' as const] },
+        report: { formats: ['md' as const], template: 'executive' as const, group_by: ['target' as const, 'severity' as const], smart_filter: true },
       };
     }
 
@@ -223,7 +226,7 @@ export default class Scan extends Command {
         output: './reports/{{date}}-{{name}}',
         parallel: 4,
         targets: [{ id, type: 'url' as const, url, scanners }],
-        report: { formats: ['md' as const], template: 'executive' as const, group_by: ['target' as const, 'severity' as const] },
+        report: { formats: ['md' as const], template: 'executive' as const, group_by: ['target' as const, 'severity' as const], smart_filter: true },
       };
     }
 

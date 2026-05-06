@@ -1,0 +1,33 @@
+{
+  "version": {
+    "number": "5.8.1",
+    "vulnerabilities": [
+      {
+        "title": "WordPress 5.8.x SQL Injection via WP_Query",
+        "fixed_in": "5.8.3",
+        "references": {
+          "cve": ["2022-21661"],
+          "url": ["https://wordpress.org/news/", "https://example.com/CWE-89"]
+        }
+      }
+    ]
+  },
+  "main_theme": {
+    "slug": "twentytwentyone",
+    "vulnerabilities": []
+  },
+  "plugins": {
+    "contact-form-7": {
+      "vulnerabilities": [
+        {
+          "title": "Unrestricted file upload",
+          "fixed_in": null,
+          "references": {
+            "url": ["https://example.com/advisory"]
+          }
+        }
+      ]
+    }
+  },
+  "themes": {}
+}

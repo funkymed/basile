@@ -1,0 +1,28 @@
+{
+  "advisories": {
+    "symfony/http-kernel": [
+      {
+        "advisoryId": "PKSA-1234-5678",
+        "packageName": "symfony/http-kernel",
+        "title": "HTTP cache poisoning via X-Forwarded headers",
+        "link": "https://symfony.com/cve-2023-46734 CWE-444",
+        "cve": "CVE-2023-46734",
+        "severity": "high",
+        "affectedVersions": ">=5.4.0,<5.4.31",
+        "reportedAt": "2023-11-10T00:00:00Z",
+        "sources": [{ "name": "GitHub", "remoteId": "GHSA-xxxx-xxxx-xxxx" }]
+      }
+    ],
+    "guzzlehttp/psr7": [
+      {
+        "advisoryId": "PKSA-9999-0000",
+        "packageName": "guzzlehttp/psr7",
+        "title": "Improper header parsing",
+        "link": "https://example.com",
+        "cve": null,
+        "severity": "low",
+        "affectedVersions": "<2.4.5"
+      }
+    ]
+  }
+}

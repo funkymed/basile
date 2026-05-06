@@ -26,15 +26,72 @@ importers:
       '@basile/runner':
         specifier: workspace:*
         version: link:../runner
+      '@basile/scanner-bearer':
+        specifier: workspace:*
+        version: link:../scanners/bearer
+      '@basile/scanner-cloc':
+        specifier: workspace:*
+        version: link:../scanners/cloc
+      '@basile/scanner-composer-audit':
+        specifier: workspace:*
+        version: link:../scanners/composer-audit
+      '@basile/scanner-depcheck':
+        specifier: workspace:*
+        version: link:../scanners/depcheck
       '@basile/scanner-eslint':
         specifier: workspace:*
         version: link:../scanners/eslint
+      '@basile/scanner-gitleaks':
+        specifier: workspace:*
+        version: link:../scanners/gitleaks
+      '@basile/scanner-headers':
+        specifier: workspace:*
+        version: link:../scanners/headers
+      '@basile/scanner-knip':
+        specifier: workspace:*
+        version: link:../scanners/knip
       '@basile/scanner-lighthouse':
         specifier: workspace:*
         version: link:../scanners/lighthouse
+      '@basile/scanner-madge':
+        specifier: workspace:*
+        version: link:../scanners/madge
+      '@basile/scanner-npm-audit':
+        specifier: workspace:*
+        version: link:../scanners/npm-audit
+      '@basile/scanner-nuclei':
+        specifier: workspace:*
+        version: link:../scanners/nuclei
+      '@basile/scanner-pa11y':
+        specifier: workspace:*
+        version: link:../scanners/pa11y
+      '@basile/scanner-phpcs':
+        specifier: workspace:*
+        version: link:../scanners/phpcs
       '@basile/scanner-phpstan':
         specifier: workspace:*
         version: link:../scanners/phpstan
+      '@basile/scanner-semgrep':
+        specifier: workspace:*
+        version: link:../scanners/semgrep
+      '@basile/scanner-ssllabs-scan':
+        specifier: workspace:*
+        version: link:../scanners/ssllabs-scan
+      '@basile/scanner-testssl':
+        specifier: workspace:*
+        version: link:../scanners/testssl
+      '@basile/scanner-trivy':
+        specifier: workspace:*
+        version: link:../scanners/trivy
+      '@basile/scanner-tsc':
+        specifier: workspace:*
+        version: link:../scanners/tsc
+      '@basile/scanner-wpscan':
+        specifier: workspace:*
+        version: link:../scanners/wpscan
+      '@basile/scanner-zap-baseline':
+        specifier: workspace:*
+        version: link:../scanners/zap-baseline
       '@clack/prompts':
         specifier: ^0.7.0
         version: 0.7.0
@@ -149,7 +206,140 @@ importers:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@22.19.17)
 
+  packages/scanners/bearer:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/cloc:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/composer-audit:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/depcheck:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
   packages/scanners/eslint:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/gitleaks:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/headers:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/knip:
     dependencies:
       '@basile/core':
         specifier: workspace:*
@@ -187,7 +377,235 @@ importers:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@22.19.17)
 
+  packages/scanners/madge:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/npm-audit:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/nuclei:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/pa11y:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/phpcs:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
   packages/scanners/phpstan:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/semgrep:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/ssllabs-scan:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/testssl:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/trivy:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/tsc:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/wpscan:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/zap-baseline:
     dependencies:
       '@basile/core':
         specifier: workspace:*

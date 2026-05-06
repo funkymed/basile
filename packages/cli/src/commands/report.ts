@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Command, Flags } from '@oclif/core';
 import boxen from 'boxen';
-import { theme, type Finding, type Recipe } from '@basile/core';
+import { loadRecipe, theme, type Finding, type Recipe } from '@basile/core';
 import { writeReport } from '@basile/reporter-markdown';
 import { renderPdf } from '@basile/reporter-pdf';
 
@@ -17,9 +17,11 @@ export default class Report extends Command {
 
   static override flags = {
     from: Flags.string({ char: 'f', required: true, description: 'Dossier produit par scan (contient meta.json + findings.ndjson)' }),
+    recipe: Flags.string({ char: 'r', description: 'Override la recipe de meta.json (utile pour itérer sur exclude_findings sans rescan)' }),
     template: Flags.string({ description: 'Template à utiliser', options: ['executive', 'technical', 'security'] }),
     pdf: Flags.boolean({ description: 'Génère aussi un PDF via Pandoc' }),
     output: Flags.string({ char: 'o', description: 'Dossier de sortie (défaut: même que --from)' }),
+    full: Flags.boolean({ description: 'Rapport complet (toutes sévérités, pas de filtre)' }),
     quiet: Flags.boolean({ char: 'q' }),
   };
 
@@ -38,6 +40,11 @@ export default class Report extends Command {
       this.error(`meta.json introuvable dans ${fromDir}. Lance d'abord 'basile scan'.`, { exit: 1 });
     }
 
+    // Override recipe from disk (--recipe flag) so user can iterate triage without rescan.
+    if (typeof flags.recipe === 'string') {
+      meta.recipe = await loadRecipe(flags.recipe);
+    }
+
     const ndjson = await readFile(ndjsonPath, 'utf8').catch(() => '');
     const findings: Finding[] = ndjson
       .split('\n')
@@ -52,7 +59,8 @@ export default class Report extends Command {
       if (g.target !== undefined) base.target = g.target;
       return base;
     });
-    const { mdPath, summary } = await writeReport(outDir, meta.recipe, findings, gaps, {
+    const { mdPath, summary, filteredOut } = await writeReport(outDir, meta.recipe, findings, gaps, {
+      full: flags.full ?? false,
       ...(flags.template ? { template: flags.template } : {}),
     });
 
@@ -70,6 +78,7 @@ export default class Report extends Command {
         `${theme.bold('Rapport généré')} · ${meta.recipe.name}`,
         '',
         `${summary.totalFindings} findings · score ${summary.score} (${summary.verdict})`,
+        ...(filteredOut > 0 ? [`${theme.dim('⊘')} ${filteredOut} finding(s) masqué(s) (utiliser --full pour rapport complet)`] : []),
         '',
         `📂 ${outDir}`,
         `   ├─ ${path.basename(mdPath)}`,

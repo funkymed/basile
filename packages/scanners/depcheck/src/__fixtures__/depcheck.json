@@ -1,0 +1,6 @@
+{
+  "dependencies": ["unused-prod"],
+  "devDependencies": ["unused-dev"],
+  "missing": { "missing-pkg": ["src/foo.ts"] },
+  "using": { "react": ["src/app.tsx"] }
+}

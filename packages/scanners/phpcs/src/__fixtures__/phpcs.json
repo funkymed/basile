@@ -1,0 +1,27 @@
+{
+  "totals": { "errors": 1, "warnings": 1, "fixable": 0 },
+  "files": {
+    "/app/src/Foo.php": {
+      "errors": 1,
+      "warnings": 1,
+      "messages": [
+        {
+          "message": "Missing file doc comment",
+          "source": "PSR1.Files.SideEffects",
+          "severity": 5,
+          "type": "ERROR",
+          "line": 1,
+          "column": 1
+        },
+        {
+          "message": "Line exceeds 120 characters",
+          "source": "Generic.Files.LineLength",
+          "severity": 5,
+          "type": "WARNING",
+          "line": 42,
+          "column": 121
+        }
+      ]
+    }
+  }
+}

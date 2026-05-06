@@ -1,4 +1,38 @@
 import { exec, hasDocker, which } from './exec.js';
+import type { Category, Stack } from './types.js';
+
+export type ScannerCategory = Category | 'sast' | 'dast' | 'lint';
+
+/**
+ * Static metadata used for filtering scanners by stack or category in the CLI
+ * (`--stack php`, `--category dast`, etc.). Keys mirror REGISTRY keys.
+ */
+export const SCANNER_META: Record<string, { stacks: Stack[]; categories: ScannerCategory[] }> = {
+  eslint: { stacks: ['typescript', 'react', 'nodejs'], categories: ['quality', 'lint', 'sast'] },
+  tsc: { stacks: ['typescript', 'react', 'nodejs'], categories: ['quality', 'lint'] },
+  knip: { stacks: ['typescript', 'react', 'nodejs'], categories: ['quality', 'deps'] },
+  depcheck: { stacks: ['typescript', 'react', 'nodejs'], categories: ['deps'] },
+  madge: { stacks: ['typescript', 'react', 'nodejs'], categories: ['quality'] },
+  'npm-audit': { stacks: ['typescript', 'react', 'nodejs'], categories: ['deps', 'security'] },
+  lighthouse: { stacks: ['url'], categories: ['performance', 'a11y', 'quality'] },
+  pa11y: { stacks: ['url'], categories: ['a11y'] },
+  'zap-baseline': { stacks: ['url'], categories: ['security', 'dast'] },
+  nuclei: { stacks: ['url'], categories: ['security', 'dast'] },
+  wapiti: { stacks: ['url'], categories: ['security', 'dast'] },
+  'ssllabs-scan': { stacks: ['url'], categories: ['security'] },
+  testssl: { stacks: ['url'], categories: ['security'] },
+  headers: { stacks: ['url'], categories: ['security'] },
+  semgrep: { stacks: ['php', 'symfony', 'typescript', 'react', 'nodejs', 'wordpress'], categories: ['security', 'sast'] },
+  trivy: { stacks: ['php', 'symfony', 'typescript', 'react', 'nodejs', 'wordpress'], categories: ['security', 'deps', 'secrets'] },
+  gitleaks: { stacks: ['php', 'symfony', 'typescript', 'react', 'nodejs', 'wordpress'], categories: ['secrets', 'security'] },
+  bearer: { stacks: ['php', 'symfony', 'typescript', 'react', 'nodejs'], categories: ['privacy', 'security', 'sast'] },
+  cloc: { stacks: ['php', 'symfony', 'typescript', 'react', 'nodejs', 'wordpress'], categories: ['quality'] },
+  phpstan: { stacks: ['php', 'symfony'], categories: ['quality', 'sast'] },
+  phpcs: { stacks: ['php', 'symfony'], categories: ['quality', 'lint'] },
+  phpmd: { stacks: ['php', 'symfony'], categories: ['quality', 'sast'] },
+  'composer-audit': { stacks: ['php', 'symfony'], categories: ['deps', 'security'] },
+  wpscan: { stacks: ['wordpress'], categories: ['security', 'dast'] },
+};
 
 export type LocalInstall = {
   darwin?: string;
@@ -137,10 +171,17 @@ export const REGISTRY: Record<string, InstallRecipe> = {
   },
   testssl: {
     scanner: 'testssl',
-    description: 'TLS/SSL local audit',
+    description: 'TLS/SSL local audit (testssl.sh)',
     preferred: 'local',
-    modes: { local: { darwin: 'brew install testssl' } },
-    verify: { local: { cmd: 'testssl', args: ['--version'] } },
+    modes: {
+      local: {
+        darwin: 'brew install testssl',
+        linux: { apt: 'apt-get install -y testssl.sh' },
+        script: 'git clone --depth 1 https://github.com/drwetter/testssl.sh.git ~/.testssl && sudo ln -sf ~/.testssl/testssl.sh /usr/local/bin/testssl.sh',
+      },
+    },
+    // Brew installe le binaire sous le nom `testssl.sh`, pas `testssl`.
+    verify: { local: { cmd: 'testssl.sh', args: ['--version'] } },
   },
   headers: {
     scanner: 'headers',
@@ -226,10 +267,12 @@ export const REGISTRY: Record<string, InstallRecipe> = {
   },
   phpmd: {
     scanner: 'phpmd',
-    description: 'PHP Mess Detector',
+    description: 'PHP Mess Detector (via jakzal/phpqa toolbox)',
     preferred: 'docker',
-    modes: { docker: { image: 'cytopia/phpmd', tag: 'latest', sizeMB: 80 } },
-    verify: { docker: { image: 'cytopia/phpmd', tag: 'latest' } },
+    // cytopia/phpmd n'existe pas. jakzal/phpqa est l'image PHP QA de référence
+    // (inclut phpmd, phpcs, phpstan, phpcpd, etc.). ~400MB mais réutilisable.
+    modes: { docker: { image: 'jakzal/phpqa', tag: 'php8.3', sizeMB: 400 } },
+    verify: { docker: { image: 'jakzal/phpqa', tag: 'php8.3' } },
   },
   'composer-audit': {
     scanner: 'composer-audit',
@@ -312,11 +355,15 @@ async function dockerImageExists(image: string, tag: string): Promise<boolean> {
 
 // ---------- Install command resolution ----------
 
+export type InstallManager = 'brew' | 'apt' | 'dnf' | 'pacman' | 'npm' | 'pip' | 'docker' | 'script';
+
 export type InstallStep = {
   scanner: string;
   mode: 'local' | 'docker';
+  manager: InstallManager;
+  /** For brew/npm/pip: the package name(s) to pass. For docker: image:tag. For script: full shell line. */
+  pkg: string;
   command: string[];
-  /** Pour info user: humain. */
   pretty: string;
   needsSudo: boolean;
   approxSizeMB?: number;
@@ -333,30 +380,54 @@ export function resolveInstallSteps(scanner: string, available: PackageManager[]
   if (recipe.modes.local) {
     const local = recipe.modes.local;
     if (process.platform === 'darwin' && available.includes('brew') && local.darwin) {
-      return shellStep(scanner, 'local', local.darwin);
+      return parseBrewStep(scanner, local.darwin);
     }
     if (process.platform === 'linux' && local.linux) {
-      if (available.includes('apt') && local.linux.apt) return shellStep(scanner, 'local', local.linux.apt, true);
-      if (available.includes('dnf') && local.linux.dnf) return shellStep(scanner, 'local', local.linux.dnf, true);
-      if (available.includes('pacman') && local.linux.pacman) return shellStep(scanner, 'local', local.linux.pacman, true);
+      if (available.includes('apt') && local.linux.apt) return parsePmStep(scanner, 'apt', local.linux.apt, true);
+      if (available.includes('dnf') && local.linux.dnf) return parsePmStep(scanner, 'dnf', local.linux.dnf, true);
+      if (available.includes('pacman') && local.linux.pacman) return parsePmStep(scanner, 'pacman', local.linux.pacman, true);
     }
-    if (available.includes('npm') && local.npm) return shellStep(scanner, 'local', local.npm);
-    if (available.includes('pip') && local.pip) return shellStep(scanner, 'local', local.pip);
-    if (local.script) return shellStep(scanner, 'local', local.script);
+    if (available.includes('npm') && local.npm) return parseNpmStep(scanner, local.npm);
+    if (available.includes('pip') && local.pip) return parsePipStep(scanner, local.pip);
+    if (local.script) return scriptStep(scanner, local.script);
   }
 
   if (recipe.modes.docker) return dockerStep(scanner, recipe.modes.docker);
   return null;
 }
 
-function shellStep(scanner: string, mode: 'local' | 'docker', cmd: string, needsSudo = false): InstallStep {
+/** Parse "brew install foo/tap/bar" → pkg="foo/tap/bar". */
+function parseBrewStep(scanner: string, cmd: string): InstallStep {
+  const pkg = cmd.replace(/^brew\s+install\s+(--cask\s+)?/, '').trim();
   return {
     scanner,
-    mode,
+    mode: 'local',
+    manager: 'brew',
+    pkg,
     command: ['sh', '-c', cmd],
     pretty: cmd,
-    needsSudo,
+    needsSudo: false,
   };
+}
+
+function parseNpmStep(scanner: string, cmd: string): InstallStep {
+  const pkg = cmd.replace(/^npm\s+(i|install)\s+(-g\s+)?/, '').trim();
+  return { scanner, mode: 'local', manager: 'npm', pkg, command: ['sh', '-c', cmd], pretty: cmd, needsSudo: false };
+}
+
+function parsePipStep(scanner: string, cmd: string): InstallStep {
+  const pkg = cmd.replace(/^pip3?\s+install\s+/, '').trim();
+  return { scanner, mode: 'local', manager: 'pip', pkg, command: ['sh', '-c', cmd], pretty: cmd, needsSudo: false };
+}
+
+function parsePmStep(scanner: string, manager: 'apt' | 'dnf' | 'pacman', cmd: string, needsSudo: boolean): InstallStep {
+  const re = manager === 'apt' ? /^apt(-get)?\s+install\s+(-y\s+)?/ : manager === 'dnf' ? /^dnf\s+install\s+(-y\s+)?/ : /^pacman\s+-S\s+(--noconfirm\s+)?/;
+  const pkg = cmd.replace(re, '').trim();
+  return { scanner, mode: 'local', manager, pkg, command: ['sh', '-c', cmd], pretty: cmd, needsSudo };
+}
+
+function scriptStep(scanner: string, cmd: string): InstallStep {
+  return { scanner, mode: 'local', manager: 'script', pkg: cmd, command: ['sh', '-c', cmd], pretty: cmd, needsSudo: false };
 }
 
 function dockerStep(scanner: string, d: DockerInstall): InstallStep {
@@ -364,12 +435,127 @@ function dockerStep(scanner: string, d: DockerInstall): InstallStep {
   const step: InstallStep = {
     scanner,
     mode: 'docker',
+    manager: 'docker',
+    pkg: ref,
     command: ['docker', 'pull', ref],
     pretty: `docker pull ${ref}`,
     needsSudo: false,
   };
   if (d.sizeMB !== undefined) step.approxSizeMB = d.sizeMB;
   return step;
+}
+
+// ---------- Batching ----------
+
+export type StepBatch = {
+  manager: InstallManager;
+  steps: InstallStep[];
+  /** Combined command (single shell exec for brew/npm/apt/dnf/pacman/pip/script). For docker: empty (steps run individually). */
+  command: string[] | null;
+  pretty: string;
+  needsSudo: boolean;
+  approxSizeMB: number;
+};
+
+/**
+ * Group install steps by package manager so we can run a single command
+ * per group instead of one per scanner. Massively reduces install time.
+ *
+ *   brew install A B C D   (1 cmd vs 4)
+ *   npm i -g X Y Z         (1 cmd vs 3)
+ *   docker pull img1       (parallelized with concurrency cap)
+ *   docker pull img2
+ *
+ * `script` and `pip` (different package syntaxes vary) are batched only when
+ * compatible; here we keep them per-step for safety.
+ */
+export function batchInstallSteps(steps: InstallStep[]): StepBatch[] {
+  const groups = new Map<InstallManager, InstallStep[]>();
+  for (const step of steps) {
+    const arr = groups.get(step.manager) ?? [];
+    arr.push(step);
+    groups.set(step.manager, arr);
+  }
+
+  const batches: StepBatch[] = [];
+  for (const [manager, items] of groups) {
+    if (manager === 'docker' || manager === 'script') {
+      // Docker: keep separate to enable parallel pulls. Scripts: each is its own shell line.
+      for (const s of items) {
+        batches.push({
+          manager,
+          steps: [s],
+          command: s.command,
+          pretty: s.pretty,
+          needsSudo: s.needsSudo,
+          approxSizeMB: s.approxSizeMB ?? 0,
+        });
+      }
+      continue;
+    }
+
+    const pkgs = items.map((s) => s.pkg).join(' ');
+    let cmd = '';
+    let needsSudo = false;
+    switch (manager) {
+      case 'brew':
+        cmd = `brew install ${pkgs}`;
+        break;
+      case 'npm':
+        cmd = `npm i -g ${pkgs}`;
+        break;
+      case 'pip':
+        cmd = `pip install ${pkgs}`;
+        break;
+      case 'apt':
+        cmd = `apt-get install -y ${pkgs}`;
+        needsSudo = true;
+        break;
+      case 'dnf':
+        cmd = `dnf install -y ${pkgs}`;
+        needsSudo = true;
+        break;
+      case 'pacman':
+        cmd = `pacman -S --noconfirm ${pkgs}`;
+        needsSudo = true;
+        break;
+    }
+    batches.push({
+      manager,
+      steps: items,
+      command: ['sh', '-c', cmd],
+      pretty: cmd,
+      needsSudo,
+      approxSizeMB: items.reduce((acc, s) => acc + (s.approxSizeMB ?? 0), 0),
+    });
+  }
+
+  // Stable order: native pkg managers first (fastest), then npm/pip, then docker (slowest).
+  const order: InstallManager[] = ['brew', 'apt', 'dnf', 'pacman', 'npm', 'pip', 'script', 'docker'];
+  batches.sort((a, b) => order.indexOf(a.manager) - order.indexOf(b.manager));
+  return batches;
+}
+
+// ---------- Stack/category filters ----------
+
+export function filterScannersByStack(scanners: string[], stacks: Stack[]): string[] {
+  if (stacks.length === 0) return scanners;
+  const stackSet = new Set(stacks);
+  return scanners.filter((s) => {
+    const meta = SCANNER_META[s];
+    if (!meta) return false;
+    return meta.stacks.some((st) => stackSet.has(st));
+  });
+}
+
+export function filterScannersByCategory(scanners: string[], categories: ScannerCategory[]): string[] {
+  if (categories.length === 0) return scanners;
+  const catSet = new Set(categories);
+  return scanners.filter((s) => {
+    const meta = SCANNER_META[s];
+    if (!meta) return false;
+    return meta.categories.some((c) => catSet.has(c));
+  });
 }
 
 export function listKnownScanners(): string[] {

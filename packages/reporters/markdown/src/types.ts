@@ -23,6 +23,10 @@ export type ReportContext = {
   gaps?: CoverageGap[];
   generatedAt: string;
   summary: ReportSummary;
+  /** Number of findings hidden by report filters (smart_filter, min_severity, exclude_rules). */
+  filteredOut?: number;
+  /** Human-readable reason explaining the filter behavior. */
+  filterReason?: string;
 };
 
 export type ReportSummary = {
