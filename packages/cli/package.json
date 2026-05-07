@@ -1,6 +1,6 @@
 {
   "name": "@basile/cli",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "type": "module",
   "description": "BASILE CLI — multi-stack audit runner",
@@ -41,7 +41,14 @@
     "bin": "basile",
     "dirname": "basile",
     "commands": "./dist/commands",
-    "topicSeparator": " "
+    "helpClass": "./dist/help",
+    "topicSeparator": " ",
+    "additionalHelpFlags": [
+      "-h"
+    ],
+    "additionalVersionFlags": [
+      "-v"
+    ]
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
