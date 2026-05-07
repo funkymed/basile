@@ -45,10 +45,31 @@ Public package: `@funkymed/basile`. Bin: `basile`.
 
 Semver. Bump root `package.json` + every `packages/*/package.json` consistently.
 
+#### Automated (recommended)
+
 ```bash
-# synchronized bump (manual for now)
-# edit root package.json, then:
+pnpm prepare-version 0.0.2
+# or:
+./scripts/prepare-version.sh 0.0.2
+```
+
+What it does:
+1. Validates semver, refuses downgrade
+2. Warns on dirty working tree
+3. Runs typecheck / test / lint
+4. Bumps root + all workspace `package.json`
+5. Builds and packs (`funkymed-basile-<version>.tgz`)
+6. Prints commit / tag / publish next steps
+
+Does NOT commit, tag, or publish — maintainer runs those manually.
+
+#### Manual
+
+```bash
+npm version <patch|minor|major> --no-git-tag-version
 pnpm -r exec npm version <patch|minor|major> --no-git-tag-version
+pnpm -r build
+pnpm pack:cli
 ```
 
 ### Publish

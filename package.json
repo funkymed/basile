@@ -5,9 +5,9 @@
     "url": "https://github.com/funkymed/basile"
   },
   "displayName": "BASILE",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
-  "description": "CLI d'audit multi-stack à la carte (code + URL) avec cookbook YAML",
+  "description": "À-la-carte multi-stack audit CLI (code + URL) with YAML cookbook",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -25,7 +25,8 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
-    "pack:cli": "node scripts/pack.mjs"
+    "pack:cli": "node scripts/pack.mjs",
+    "prepare-version": "bash scripts/prepare-version.sh"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

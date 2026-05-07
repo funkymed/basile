@@ -154,6 +154,16 @@ pkg.bundleDependencies = allBundled;
 
 safeWriteFile(pkgPath, JSON.stringify(pkg, null, 2));
 
+console.log('▸ Copy README + LICENSE from repo root');
+for (const f of ['README.md', 'LICENSE']) {
+  const src = path.join(ROOT, f);
+  if (existsSync(src)) {
+    cpSync(src, path.join(DEPLOY, f));
+  } else {
+    console.warn(`  ! ${f} missing at repo root, skipping`);
+  }
+}
+
 console.log('▸ chmod +x bin');
 const binPath = path.join(DEPLOY, 'dist', 'bin', 'run.js');
 chmodSync(binPath, 0o755);
