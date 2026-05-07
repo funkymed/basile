@@ -37,7 +37,7 @@ describe('ScannerRegistry', () => {
   it('throws on duplicate registration', () => {
     const r = new ScannerRegistry();
     r.register(eslint);
-    expect(() => r.register(eslint)).toThrow(/déjà/);
+    expect(() => r.register(eslint)).toThrow(/already registered/);
   });
 
   it('resolveForTarget filters by support and registration', () => {
