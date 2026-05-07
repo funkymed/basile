@@ -1,6 +1,6 @@
 {
   "name": "@basile/cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "type": "module",
   "description": "BASILE CLI — multi-stack audit runner",
@@ -9,7 +9,22 @@
   "repository": "github:funkymed/basile",
   "homepage": "https://github.com/funkymed/basile#readme",
   "bugs": "https://github.com/funkymed/basile/issues",
-  "keywords": ["audit","security","sast","dast","lighthouse","cli","phpstan","semgrep","bearer","owasp","wpscan","trivy","gitleaks","zap"],
+  "keywords": [
+    "audit",
+    "security",
+    "sast",
+    "dast",
+    "lighthouse",
+    "cli",
+    "phpstan",
+    "semgrep",
+    "bearer",
+    "owasp",
+    "wpscan",
+    "trivy",
+    "gitleaks",
+    "zap"
+  ],
   "bin": {
     "basile": "./dist/bin/run.js"
   },
