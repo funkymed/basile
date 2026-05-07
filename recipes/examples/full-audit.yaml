@@ -20,7 +20,7 @@ targets:
   - id: web
     type: code
     path: ./apps/web
-    stacks: [typescript, react]
+    stacks: [typescript, react, nodejs]
     scanners:
       - eslint
       - tsc

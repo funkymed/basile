@@ -1,56 +1,74 @@
-# CLAUDE.md — BASILE
+# CLAUDE.md
 
-## Output Constraints
-- Réponses concises, évite le mur de texte
-- Pour analyses longues: scinder ou écrire dans un .md
-- Questions de clarification via `AskUserQuestion`, pas en bloc
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Verification Before Action
-- `git status` avant tout audit/refactor
-- `pnpm typecheck && pnpm build` après refactor multi-fichiers
-- Quand on corrige un bug, on le corrige (pas juste l'expliquer sauf demande)
+## Project
 
-## Honest Feedback
-- Audits/évaluations: stricts et honnêtes, pas de score gonflé
-- Lead avec les vérités les plus dures
+BASILE — multi-stack audit CLI (PHP/Symfony, WordPress, TS/React/Node, prod URLs). Consolidates findings into MD/PDF, **no LLM calls**, deterministic. Spec: `docs/rfc/RFC-001-audit-multi-stack.md`.
 
-## Conventions projet
+## Commands
 
-- English pour code (variables, commentaires), French pour UI/i18n
-- Pas de Docker local sauf scanners non iso (PHP, ZAP, wpscan)
-- Branche: `feat/rfc-XXX`
-- Commits conventionnels: `feat(rfc-XXX): ...`, `fix(scanner-X): ...`
+pnpm workspaces mono-repo. Node >=20, pnpm 9.
 
-## Stack
+```bash
+pnpm install
+pnpm -r build           # build all packages
+pnpm -r typecheck
+pnpm -r test            # vitest
+pnpm -r lint
+pnpm pack:cli           # bundle self-contained tarball via scripts/pack.mjs
+```
 
-- TypeScript / Node 20+ / pnpm workspaces
-- CLI: oclif
-- Orchestration: listr2
-- Reporting: Handlebars + Pandoc (pas d'IA)
+Single package: `pnpm --filter @basile/core build`. Single test: `pnpm --filter <pkg> test -- <file>`.
 
-## RFC
+CLI dev entry: `node packages/cli/dist/bin/run.js <cmd>`. Commands: `doctor | init | list-scanners | setup | scan | report`.
 
-| ID | Titre | Statut | Branche |
-|----|-------|--------|---------|
-| [RFC-001](docs/rfc/RFC-001-audit-multi-stack.md) | App d'audit multi-stack à la carte | Draft | `feat/rfc-001` |
+## Architecture
 
-## Gantt — progression
+Workspace layout (`pnpm-workspace.yaml`): `packages/*`, `packages/scanners/*`, `packages/reporters/*`.
 
-| RFC | % | Étape courante |
-|-----|---|----------------|
-| RFC-001 | 5% | Bootstrap repo + rédaction RFC |
+- **core** — `Finding` / `Recipe` types, Zod schemas, `exec` wrapper, installers, preflight, theme
+- **cli** — oclif commands + `registry.ts` (scanner discovery point)
+- **runner** — listr2 orchestrator, `Scanner` interface, `ScannerRegistry`
+- **scanners/** — one package per tool (`@basile/scanner-<name>`)
+- **reporters/markdown** — Handlebars + writeReport (md + ndjson + meta.json), templates copied from root `templates/`
+- **reporters/pdf** — Pandoc (eisvogel) wrapper
 
-### Détail RFC-001 (MVP)
+### Scanner adapter contract
 
-- [x] Bootstrap repo + RFC
-- [ ] Mono-repo packages (core, cli, scanners)
-- [ ] CLI oclif: doctor, init, list-scanners, setup
-- [ ] Registre installers + détection brew/apt/docker
-- [ ] Preflight pré-scan
-- [ ] 3 scanners pilotes: phpstan, eslint, lighthouse
-- [ ] Reporter Markdown (template executive)
-- [ ] Scanners batch 2: semgrep, bearer, trivy, gitleaks, npm/composer audit
-- [ ] DAST: zap-baseline, nuclei, wapiti, headers
-- [ ] Reporter PDF via Pandoc
-- [ ] Templates technical + security
-- [ ] WordPress, tsc, knip, depcheck, pa11y, ssllabs
+```ts
+interface Scanner {
+  readonly name: string;
+  readonly category: Category;
+  readonly supports: (target: RecipeTarget) => boolean;
+  run(target: RecipeTarget, opts: ScanOptions): Promise<Finding[]>;
+}
+```
+
+Add scanner = new `@basile/scanner-<name>` package + register in `packages/cli/src/registry.ts`.
+
+### Hybrid local/Docker exec
+
+`exec.execHybrid()` in core: `which` detects local binary, falls back to Docker auto-mount. `which` is process-cached. Docker is the default for PHP/Ruby/Java tools (rarely standard on dev machines); local for JS / brew tools.
+
+### Run output layout
+
+`reports/<run>/raw/*.json`, `findings.ndjson`, `report.md`, `meta.json`, optional `report.pdf`. `basile report --from <run>` re-renders without re-scanning.
+
+### UI modes (`--ui`)
+
+`pretty` (TTY default, listr2) | `plain` (CI verbose, no ANSI) | `json` (NDJSON pipe) | `quiet`.
+
+## Conventions
+
+- English for code (vars, comments). French only for UI / CLI strings (i18n).
+- Documentation (README.md, docs/, CONTRIBUTING.md): English.
+- No local Docker except for non-iso scanners (PHP, ZAP, wpscan, wapiti)
+- Branches: `feat/rfc-XXX` — Commits: `feat(rfc-XXX): ...`, `fix(scanner-X): ...`
+- TS strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` (see `tsconfig.base.json`)
+
+## RFCs
+
+| ID | Title | Status |
+|----|-------|--------|
+| RFC-001 | Multi-stack audit | in progress |

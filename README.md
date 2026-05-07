@@ -1,115 +1,117 @@
 # BASILE
 
-CLI d'audit multi-stack à la carte. Scanne du code source (PHP/Symfony, WordPress, TypeScript/React/Node) ou des URLs en production. Consolide les résultats en Markdown/PDF **sans appel LLM** — déterministe, reproductible, gratuit.
+À-la-carte multi-stack audit CLI. Scans source code (PHP/Symfony, WordPress, TypeScript/React/Node) and production URLs. Consolidates results into Markdown/PDF — **no LLM calls**, deterministic, reproducible.
 
-> Voir [`docs/rfc/RFC-001-audit-multi-stack.md`](docs/rfc/RFC-001-audit-multi-stack.md) pour la spec complète.
+> Full spec: [`docs/rfc/RFC-001-audit-multi-stack.md`](docs/rfc/RFC-001-audit-multi-stack.md) — Scanner catalog: [`docs/scanners.md`](docs/scanners.md) — Examples: [`docs/examples/`](docs/examples/) — Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 ---
 
 ## Installation
 
-### Via tarball npx (recommandé pour tester)
-
 ```bash
-# Build le tarball self-contained (5.4 MB)
+# Tarball (quick test, no global install)
 pnpm pack:cli
-
-# Lancer sans install
 npx --package=file:./basile-0.0.1.tgz basile doctor
 
-# Ou install global
+# Global install
 npm i -g ./basile-0.0.1.tgz
 basile doctor
 ```
 
-### Mode dev (mono-repo)
+Dev mode (mono-repo): `pnpm install && pnpm -r build && node packages/cli/dist/bin/run.js doctor`.
+
+---
+
+## Quick start
 
 ```bash
-pnpm install
-pnpm -r build
-node packages/cli/dist/bin/run.js doctor
+basile init                                # generates cookbook.yaml
+basile setup --recipe cookbook.yaml        # installs missing tools
+basile scan --recipe cookbook.yaml         # preflight + scan + report
 ```
 
 ---
 
-## Commandes
+## Commands
 
-| Commande | Rôle |
-|----------|------|
-| `basile doctor` | État de l'environnement (Node, Docker, package managers) + statut de tous les scanners |
-| `basile list-scanners` | Liste les scanners connus, groupés par catégorie |
-| `basile init` | Génère un `cookbook.yaml` de démarrage |
-| `basile setup` | Installe les outils manquants (batché par PM, docker en parallèle) |
-| `basile scan` | Lance un scan (recipe ou ad-hoc) |
-| `basile report` | Reconsolide un run précédent en MD/PDF sans relancer les scanners |
+| Command | Role |
+|---------|------|
+| `basile doctor` | Environment status (Node, Docker, package managers) + scanner availability |
+| `basile list-scanners` | Lists known scanners grouped by category |
+| `basile init` | Generates a starter `cookbook.yaml` |
+| `basile setup` | Installs missing tools (batched per PM, Docker pulls in parallel) |
+| `basile scan` | Runs a scan (recipe or ad-hoc) |
+| `basile report` | Re-renders a previous run as MD/PDF without re-scanning |
 
-### Setup batché — install rapide
+---
 
-Tous les outils manquants sont groupés par package manager (1 commande `brew install A B C`, 1 commande `npm i -g X Y Z`, docker pulls en parallèle).
+## Usage modes
 
-```bash
-# Tout pour audit URL
-basile setup --stack url --yes
+### 1. Without cookbook (ad-hoc)
 
-# PHP + Symfony
-basile setup --stack php,symfony
-
-# Tous les outils DAST
-basile setup --category dast --yes
-
-# Tous les scanners du registre
-basile setup --all --yes
-
-# Juste ce qu'une recipe demande
-basile setup --recipe cookbook.yaml
-
-# Limite concurrence docker
-basile setup --all --docker-concurrency 5
-```
-
-**Filtres disponibles:**
-- `--stack` — `php`, `symfony`, `wordpress`, `typescript`, `react`, `nodejs`, `url`
-- `--category` — `security`, `quality`, `performance`, `a11y`, `deps`, `secrets`, `privacy`, `sast`, `dast`, `lint`
-
-### Scan
-
-Mode recipe (déclaratif):
-
-```bash
-basile scan --recipe cookbook.yaml
-basile scan --recipe cookbook.yaml --auto-install      # installe outils manquants en preflight
-basile scan --recipe cookbook.yaml --skip-preflight    # bypass check
-```
-
-Mode ad-hoc:
-
+Code target:
 ```bash
 basile scan --target ./apps/api --stacks php,symfony --scanners phpstan,bearer
+```
+
+URL target:
+```bash
 basile scan --url https://example.com --scanners lighthouse,headers,zap-baseline
 ```
 
-Sortie: `reports/<run>/raw/*.json`, `findings.ndjson`, `report.md`, `meta.json`, et `report.pdf` si `pdf` dans `report.formats`.
+See [`docs/examples/code-php-scan.md`](docs/examples/code-php-scan.md), [`docs/examples/code-typescript-scan.md`](docs/examples/code-typescript-scan.md), [`docs/examples/url-quick-scan.md`](docs/examples/url-quick-scan.md).
 
-UI modes (`--ui`):
-- `pretty` (défaut TTY) — listr2 + animations + couleurs
-- `plain` — logs séquentiels, pas d'ANSI (CI verbose)
-- `json` — NDJSON pour pipe vers autres outils
-- `quiet` — erreurs seules
-
-### Report
-
-Reconsolide un run sans relancer les scanners:
+### 2. With cookbook (declarative, recommended)
 
 ```bash
-basile report --from reports/2026-05-06-audit-client-x
-basile report --from reports/<run> --template technical --pdf
+basile scan --recipe cookbook.yaml
+basile scan --recipe cookbook.yaml --auto-install   # install missing tools at preflight
+basile scan --recipe cookbook.yaml --skip-preflight # bypass tool check
 ```
+
+See [`docs/examples/multistack-cookbook.md`](docs/examples/multistack-cookbook.md).
+
+### 3. Single scanner
+
+```bash
+basile scan --target . --scanners gitleaks
+basile scan --url https://example.com --scanners lighthouse
+```
+
+See [`docs/examples/single-scanner.md`](docs/examples/single-scanner.md).
+
+---
+
+## Scanners by stack
+
+| Stack | Scanners |
+|-------|----------|
+| **PHP / Symfony** | phpstan, phpcs, composer-audit, semgrep, bearer, gitleaks, trivy, cloc |
+| **WordPress** | wpscan, gitleaks, trivy |
+| **TypeScript / React** | eslint, tsc, knip, madge, semgrep, bearer, gitleaks, trivy, cloc |
+| **Node.js** | eslint, tsc, depcheck, npm-audit, semgrep, bearer, gitleaks, trivy |
+| **Production URL** | lighthouse, pa11y, zap-baseline, nuclei, headers, ssllabs-scan, testssl |
+| **Multi / cross-cutting** | semgrep, bearer, gitleaks, trivy, cloc |
+
+Detailed catalog (role, options): [`docs/scanners.md`](docs/scanners.md).
+
+---
+
+## Scanners by execution mode
+
+| Mode | Scanners |
+|------|----------|
+| **Local** (system binary) | eslint, tsc, knip, depcheck, npm-audit, madge, semgrep, bearer, gitleaks, cloc, lighthouse, pa11y, headers, ssllabs-scan, testssl |
+| **Docker** (auto-pulled image) | phpstan, phpcs, composer-audit, wpscan, zap-baseline |
+| **Hybrid** (`execHybrid`: local then Docker fallback) | trivy, nuclei |
+
+`basile doctor` reports in real time what's available locally vs through Docker.
 
 ---
 
 ## Cookbook YAML
 
-Exemple `recipes/examples/full-audit.yaml`:
+Minimal example:
 
 ```yaml
 name: audit-client-x
@@ -121,126 +123,67 @@ targets:
     type: code
     path: ./apps/api
     stacks: [php, symfony]
-    scanners: [phpstan, phpcs, composer-audit, semgrep, bearer, gitleaks, trivy]
-
-  - id: web
-    type: code
-    path: ./apps/web
-    stacks: [typescript, react]
-    scanners: [eslint, tsc, knip, depcheck, npm-audit, semgrep, bearer]
+    scanners: [phpstan, phpcs, composer-audit, semgrep, bearer]
 
   - id: prod
     type: url
     url: https://app.client.fr
-    scanners: [lighthouse, pa11y, zap-baseline, nuclei, headers, ssllabs-scan]
+    scanners: [lighthouse, pa11y, zap-baseline, headers, ssllabs-scan]
 
 report:
   formats: [md, pdf]
-  template: executive    # ou technical, security
+  template: executive       # executive | technical | security
   group_by: [target, severity]
   min_severity: low
 ```
 
----
-
-## Scanners couverts (24)
-
-| Catégorie | Outil | Mode |
-|-----------|-------|------|
-| **SAST PHP** | phpstan, phpcs, phpmd | docker |
-| **SAST JS/TS** | eslint, tsc, knip, depcheck, madge | local |
-| **SAST multi** | semgrep | local |
-| **SAST privacy** | bearer | local |
-| **SCA** | composer-audit, npm-audit, trivy | mixte |
-| **Secrets** | gitleaks, trivy | local |
-| **WordPress** | wpscan | docker |
-| **DAST URL** | OWASP ZAP (zap-baseline), nuclei, wapiti | docker / mixte |
-| **Perf / A11y** | lighthouse, pa11y | local |
-| **Headers / TLS** | curl headers, ssllabs-scan, testssl | local |
-| **Stats** | cloc | local |
-
-`basile doctor` affiche en temps réel ce qui est installé localement vs disponible via Docker.
+Full annotated cookbook: [`docs/examples/multistack-cookbook.md`](docs/examples/multistack-cookbook.md).
 
 ---
 
-## Architecture
+## Batched setup
 
-Mono-repo pnpm:
-
-```
-packages/
-├── core/                  # types Finding, Recipe, Zod, exec wrapper, installers, preflight, theme
-├── cli/                   # oclif: doctor, init, list-scanners, setup, scan, report
-├── runner/                # listr2 orchestrator + Scanner interface + ScannerRegistry
-├── scanners/
-│   ├── eslint/            # @basile/scanner-eslint
-│   ├── lighthouse/        # @basile/scanner-lighthouse
-│   └── phpstan/           # @basile/scanner-phpstan
-└── reporters/
-    ├── markdown/          # Handlebars + helpers + writeReport (md + ndjson + meta.json)
-    └── pdf/               # wrapper Pandoc
-
-templates/                 # executive.hbs, technical.hbs, security.hbs (copiés dans reporter-markdown)
-recipes/examples/          # cookbooks types
-docs/rfc/                  # RFC-001
-scripts/pack.mjs           # bundle CLI self-contained pour npx
-```
-
-### Scanner = adapter
-
-Chaque scanner implémente:
-
-```ts
-interface Scanner {
-  readonly name: string;
-  readonly category: Category;
-  readonly supports: (target: RecipeTarget) => boolean;
-  run(target: RecipeTarget, opts: ScanOptions): Promise<Finding[]>;
-}
-```
-
-Découverte: `packages/cli/src/registry.ts` enregistre les scanners disponibles. Ajouter un scanner = créer un package `@basile/scanner-<name>` + l'ajouter au registry.
-
-### Hybride local / Docker
-
-`exec.execHybrid()` détecte le binaire local via `which`, sinon fallback Docker auto avec montage de volume. Cache `which` sur la durée du process.
-
-PHP / Ruby / Java rarement iso sur machine dev → Docker par défaut. JS / brew tools → local.
-
----
-
-## Stack
-
-- TypeScript / Node 20+ / pnpm workspaces
-- CLI: oclif + @clack/prompts + boxen + figlet + gradient-string + cli-table3 + picocolors
-- Orchestration: listr2 (renderers default / verbose / silent)
-- Validation: Zod
-- Reporting: Handlebars + Pandoc (eisvogel)
-- Tests: Vitest
-
----
-
-## Conventions
-
-- English pour code (variables, comments), French pour UI/CLI strings
-- Pas de Docker local sauf scanners non iso (PHP, ZAP, wpscan, wapiti)
-- Branche: `feat/rfc-XXX`
-- Commits: `feat(rfc-XXX): ...`, `fix(scanner-X): ...`
-
----
-
-## Workflow recommandé
+Missing tools grouped by package manager (1 `brew install A B C`, 1 `npm i -g X Y Z`, parallel Docker pulls).
 
 ```bash
-# 1. Init
-basile init                                  # génère cookbook.yaml
-
-# 2. Setup outils
-basile setup --recipe cookbook.yaml          # installe juste ce qu'il faut
-
-# 3. Scan
-basile scan --recipe cookbook.yaml           # preflight + scan + report
-
-# 4. Reconsolider plus tard
-basile report --from reports/<run> --pdf
+basile setup --stack url --yes                  # everything for URL audit
+basile setup --stack php,symfony                # PHP + Symfony
+basile setup --category dast --yes              # all DAST tools
+basile setup --all --yes                        # entire registry
+basile setup --recipe cookbook.yaml             # only what recipe needs
+basile setup --all --docker-concurrency 5       # cap docker parallelism
 ```
+
+Filters: `--stack` (`php`, `symfony`, `wordpress`, `typescript`, `react`, `nodejs`, `url`) | `--category` (`security`, `quality`, `performance`, `a11y`, `deps`, `secrets`, `privacy`, `sast`, `dast`, `lint`).
+
+---
+
+## Output
+
+```
+reports/<run>/
+├── raw/*.json              # raw output per scanner
+├── findings.ndjson         # normalized findings
+├── meta.json               # run metadata
+├── report.md               # Markdown report
+└── report.pdf              # if pdf in report.formats
+```
+
+Re-render without re-scanning:
+
+```bash
+basile report --from reports/2026-05-06-audit-client-x --pdf
+basile report --from reports/<run> --template technical
+```
+
+UI modes (`--ui`): `pretty` (TTY), `plain` (CI), `json` (NDJSON pipe), `quiet`.
+
+---
+
+## Further reading
+
+- Scanner catalog: [`docs/scanners.md`](docs/scanners.md)
+- Examples: [`docs/examples/`](docs/examples/)
+- Architecture & contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Build & npm release: [`docs/internal/release.md`](docs/internal/release.md)
+- RFC-001 spec: [`docs/rfc/RFC-001-audit-multi-stack.md`](docs/rfc/RFC-001-audit-multi-stack.md)
