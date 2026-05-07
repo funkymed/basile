@@ -20,21 +20,23 @@ Each package: `src/` → `dist/` (CommonJS via `tsconfig` extending `tsconfig.ba
 
 ```bash
 pnpm pack:cli
-# → basile-<version>.tgz at repo root
+# → funkymed-basile-<version>.tgz at repo root
 ```
 
 Smoke-test the tarball:
 ```bash
-npx --package=file:./basile-0.0.1.tgz basile doctor
+npx --package=file:./funkymed-basile-0.0.1.tgz basile doctor
 # or
-npm i -g ./basile-0.0.1.tgz && basile --version
+npm i -g ./funkymed-basile-0.0.1.tgz && basile --version
 ```
 
 ## npm publish
 
+Public package: `@funkymed/basile`. Bin: `basile`.
+
 ### Prerequisites
 
-- npm account with access to org `@basile` (or personal account publishing the root `basile` package)
+- npm account with publish access to scope `@funkymed`
 - `npm login`
 - Git tag `v<version>` pushed
 - Up-to-date changelog
@@ -55,12 +57,12 @@ Self-contained tarball (single public artifact):
 
 ```bash
 pnpm pack:cli
-npm publish ./basile-<version>.tgz --access public
+npm publish ./funkymed-basile-<version>.tgz --access public
 ```
 
 Dry-run:
 ```bash
-npm publish ./basile-<version>.tgz --dry-run
+npm publish ./funkymed-basile-<version>.tgz --dry-run
 ```
 
 ### Git tag + push
@@ -86,4 +88,4 @@ git push origin v<version>
 
 ## Rollback
 
-`npm unpublish` is allowed only within 72h. Otherwise: publish a patch fix. Use `npm deprecate basile@<version> "<reason>"` to flag a broken version.
+`npm unpublish` is allowed only within 72h. Otherwise: publish a patch fix. Use `npm deprecate @funkymed/basile@<version> "<reason>"` to flag a broken version.

@@ -9,17 +9,13 @@
 ## Installation
 
 ```bash
-# Tarball (quick test, no global install)
-pnpm pack:cli
-npx --package=file:./basile-0.0.1.tgz basile doctor
-
-# Global install
-npm i -g ./basile-0.0.1.tgz
+# Global install (recommended)
+npm install -g @funkymed/basile
 basile doctor
+
+# One-off run without install
+npx @funkymed/basile doctor
 ```
-
-Dev mode (mono-repo): `pnpm install && pnpm -r build && node packages/cli/dist/bin/run.js doctor`.
-
 ---
 
 ## Quick start
