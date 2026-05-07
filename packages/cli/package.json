@@ -4,6 +4,12 @@
   "private": true,
   "type": "module",
   "description": "BASILE CLI — multi-stack audit runner",
+  "license": "MIT",
+  "author": "Cyril Pereira <https://github.com/funkymed>",
+  "repository": "github:funkymed/basile",
+  "homepage": "https://github.com/funkymed/basile#readme",
+  "bugs": "https://github.com/funkymed/basile/issues",
+  "keywords": ["audit","security","sast","dast","lighthouse","cli","phpstan","semgrep","bearer","owasp","wpscan","trivy","gitleaks","zap"],
   "bin": {
     "basile": "./dist/bin/run.js"
   },

@@ -8,6 +8,14 @@
   "version": "0.0.1",
   "private": true,
   "description": "CLI d'audit multi-stack à la carte (code + URL) avec cookbook YAML",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/funkymed/basile.git"
+  },
+  "homepage": "https://github.com/funkymed/basile#readme",
+  "bugs": "https://github.com/funkymed/basile/issues",
+  "keywords": ["audit", "security", "sast", "dast", "lighthouse", "cli", "phpstan", "semgrep", "bearer", "owasp"],
   "packageManager": "pnpm@9.12.0",
   "engines": {
     "node": ">=20"

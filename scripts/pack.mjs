@@ -126,8 +126,16 @@ for (const dep of basileDeps) {
   pkg.dependencies[dep] = corePkg.version;
 }
 
-pkg.name = 'basile';
+pkg.name = '@funkymed/basile';
+pkg.publishConfig = { access: 'public' };
 pkg.private = false;
+pkg.license = 'MIT';
+pkg.author = 'Cyril Pereira <https://github.com/funkymed>';
+pkg.repository = 'github:funkymed/basile';
+pkg.homepage = 'https://github.com/funkymed/basile#readme';
+pkg.bugs = 'https://github.com/funkymed/basile/issues';
+pkg.keywords = ['audit', 'security', 'sast', 'dast', 'lighthouse', 'cli', 'phpstan', 'semgrep', 'bearer', 'owasp', 'wpscan', 'trivy', 'gitleaks', 'zap'];
+pkg.files = ['dist', 'LICENSE', 'README.md'];
 delete pkg.devDependencies;
 pkg.scripts = {};
 // Bundle EVERYTHING that's in node_modules so the tarball is fully self-contained.
@@ -153,6 +161,12 @@ chmodSync(binPath, 0o755);
 console.log('▸ npm pack');
 sh(`npm pack --pack-destination "${ROOT}"`, { cwd: DEPLOY });
 
+// Resolve produced tarball name (npm uses `${scope-or-name}-${version}.tgz`).
+const safeName = pkg.name.replace(/^@/, '').replace('/', '-');
+const tarballName = `${safeName}-${pkg.version}.tgz`;
+
 console.log('\n✔ Tarball prêt à la racine. Test:');
-console.log(`  npx ./basile-${pkg.version}.tgz doctor`);
-console.log(`  npm i -g ./basile-${pkg.version}.tgz`);
+console.log(`  npx ./${tarballName} doctor`);
+console.log(`  npm i -g ./${tarballName}`);
+console.log('\nPour publier sur npmjs:');
+console.log(`  npm publish ./${tarballName} --access public --registry=https://registry.npmjs.org/`);
