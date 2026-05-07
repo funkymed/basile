@@ -41,11 +41,15 @@ command -v npm  >/dev/null || die "npm not found"
 command -v jq   >/dev/null || die "jq not found (brew install jq)"
 
 CURRENT="$(jq -r .version package.json)"
-[[ "$CURRENT" == "$VERSION" ]] && die "Version already at $VERSION"
-
-# Compare semver: refuse downgrade
-LOWER="$(printf '%s\n%s\n' "$CURRENT" "$VERSION" | sort -V | head -1)"
-[[ "$LOWER" == "$VERSION" && "$CURRENT" != "$VERSION" ]] && die "Refusing downgrade: $CURRENT → $VERSION"
+SAME_VERSION=0
+if [[ "$CURRENT" == "$VERSION" ]]; then
+  warn "Version already at $VERSION — rebuilding tarball without bump"
+  SAME_VERSION=1
+else
+  # Compare semver: refuse downgrade
+  LOWER="$(printf '%s\n%s\n' "$CURRENT" "$VERSION" | sort -V | head -1)"
+  [[ "$LOWER" == "$VERSION" ]] && die "Refusing downgrade: $CURRENT → $VERSION"
+fi
 
 if ! git diff --quiet || ! git diff --cached --quiet; then
   warn "Working tree has uncommitted changes"
@@ -68,12 +72,24 @@ pnpm -r test
 step "pnpm -r lint"
 pnpm -r lint || warn "Lint reported issues — review before publish"
 
-# ─── version bump ─────────────────────────────────────────────────────────────
-step "Bump root package.json → $VERSION"
+# ─── version bump (always, idempotent) ────────────────────────────────────────
+step "Set root package.json → $VERSION"
 npm version "$VERSION" --no-git-tag-version --allow-same-version >/dev/null
 
-step "Bump all workspace packages → $VERSION"
+step "Set all workspace packages → $VERSION"
 pnpm -r exec npm version "$VERSION" --no-git-tag-version --allow-same-version >/dev/null
+
+step "Verify alignment"
+MISMATCH=0
+while IFS= read -r f; do
+  v="$(jq -r .version "$f")"
+  if [[ "$v" != "$VERSION" ]]; then
+    warn "${f#./}: $v"
+    MISMATCH=1
+  fi
+done < <(find . -name package.json -not -path '*/node_modules/*' -not -path '*/dist/*' -not -path './deploy/*')
+[[ "$MISMATCH" -eq 1 ]] && die "Some packages not at $VERSION — bump failed"
+ok "All workspaces at $VERSION"
 
 # ─── build + pack ─────────────────────────────────────────────────────────────
 step "pnpm -r build"

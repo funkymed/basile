@@ -15,7 +15,18 @@
   },
   "homepage": "https://github.com/funkymed/basile#readme",
   "bugs": "https://github.com/funkymed/basile/issues",
-  "keywords": ["audit", "security", "sast", "dast", "lighthouse", "cli", "phpstan", "semgrep", "bearer", "owasp"],
+  "keywords": [
+    "audit",
+    "security",
+    "sast",
+    "dast",
+    "lighthouse",
+    "cli",
+    "phpstan",
+    "semgrep",
+    "bearer",
+    "owasp"
+  ],
   "packageManager": "pnpm@9.12.0",
   "engines": {
     "node": ">=20"

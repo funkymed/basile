@@ -175,8 +175,8 @@ sh(`npm pack --pack-destination "${ROOT}"`, { cwd: DEPLOY });
 const safeName = pkg.name.replace(/^@/, '').replace('/', '-');
 const tarballName = `${safeName}-${pkg.version}.tgz`;
 
-console.log('\n✔ Tarball prêt à la racine. Test:');
+console.log('\n✔ Tarball ready at repo root. Test:');
 console.log(`  npx ./${tarballName} doctor`);
 console.log(`  npm i -g ./${tarballName}`);
-console.log('\nPour publier sur npmjs:');
+console.log('\nPublish to npmjs:');
 console.log(`  npm publish ./${tarballName} --access public --registry=https://registry.npmjs.org/`);
