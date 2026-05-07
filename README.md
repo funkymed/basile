@@ -1,9 +1,5 @@
 # BASILE
 
-À-la-carte multi-stack audit CLI. Scans source code (PHP/Symfony, WordPress, TypeScript/React/Node) and production URLs. Consolidates results into Markdown/PDF — **no LLM calls**, deterministic, reproducible.
-
-> Full spec: [`docs/rfc/RFC-001-audit-multi-stack.md`](docs/rfc/RFC-001-audit-multi-stack.md) — Scanner catalog: [`docs/scanners.md`](docs/scanners.md) — Examples: [`docs/examples/`](docs/examples/) — Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md)
-
 ---
 
 ## Installation
