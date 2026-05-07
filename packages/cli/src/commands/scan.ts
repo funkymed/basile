@@ -22,7 +22,7 @@ import { renderStatusTable } from '../ui/table.js';
 type Ui = 'pretty' | 'plain' | 'json' | 'quiet';
 
 export default class Scan extends Command {
-  static override description = "Lance un scan d'audit (recipe ou ad-hoc)";
+  static override description = 'Run an audit scan (recipe or ad-hoc)';
 
   static override examples = [
     'basile scan --recipe cookbook.yaml',
@@ -32,22 +32,22 @@ export default class Scan extends Command {
   ];
 
   static override flags = {
-    recipe: Flags.string({ char: 'r', description: 'Chemin vers cookbook YAML' }),
-    target: Flags.string({ description: 'Chemin code à scanner (ad-hoc)' }),
-    url: Flags.string({ description: 'URL à scanner (ad-hoc)' }),
+    recipe: Flags.string({ char: 'r', description: 'Path to YAML cookbook' }),
+    target: Flags.string({ description: 'Code path to scan (ad-hoc)' }),
+    url: Flags.string({ description: 'URL to scan (ad-hoc)' }),
     stacks: Flags.string({ description: 'Stacks CSV (php,symfony,typescript,react,nodejs)' }),
     scanners: Flags.string({ description: 'Scanners CSV' }),
-    output: Flags.string({ char: 'o', description: 'Dossier de sortie' }),
+    output: Flags.string({ char: 'o', description: 'Output directory' }),
     ui: Flags.string({
-      description: 'Mode UI',
+      description: 'UI mode',
       options: ['pretty', 'plain', 'json', 'quiet'],
       default: 'pretty',
     }),
-    'auto-install': Flags.boolean({ description: 'Installe les outils manquants sans demander' }),
-    'skip-preflight': Flags.boolean({ description: 'Saute la vérification preflight' }),
-    'skip-report': Flags.boolean({ description: 'Ne génère pas le rapport final' }),
-    full: Flags.boolean({ description: 'Rapport complet (toutes sévérités, pas de filtre)' }),
-    quiet: Flags.boolean({ char: 'q', description: 'Sortie minimale' }),
+    'auto-install': Flags.boolean({ description: 'Install missing tools without prompting' }),
+    'skip-preflight': Flags.boolean({ description: 'Skip preflight check' }),
+    'skip-report': Flags.boolean({ description: 'Skip final report generation' }),
+    full: Flags.boolean({ description: 'Full report (all severities, no filter)' }),
+    quiet: Flags.boolean({ char: 'q', description: 'Minimal output' }),
   };
 
   public async run(): Promise<void> {
@@ -73,7 +73,7 @@ export default class Scan extends Command {
           process.stdout.write(renderStatusTable(pre.statuses) + '\n\n');
         }
         if (pre.unknown.length > 0) {
-          this.warn(`Scanners inconnus (ignorés): ${pre.unknown.join(', ')}`);
+          this.warn(`Unknown scanners (ignored): ${pre.unknown.join(', ')}`);
         }
 
         if (pre.missing.length > 0) {
@@ -82,22 +82,22 @@ export default class Scan extends Command {
             await this.runInstallPlan(pre.installPlan, true);
           } else if (!isTTY) {
             this.error(
-              `Outils manquants en mode non-interactif. Lance:\n${pre.installPlan
+              `Missing tools in non-interactive mode. Run:\n${pre.installPlan
                 .map((s) => `  ${s.pretty}`)
-                .join('\n')}\nOu utilise --auto-install / --skip-preflight.`,
+                .join('\n')}\nOr use --auto-install / --skip-preflight.`,
               { exit: 2 },
             );
           } else {
             const action = await p.select({
-              message: `${pre.missing.length} outil(s) manquant(s). Que faire ?`,
+              message: `${pre.missing.length} tool(s) missing. What do you want to do?`,
               options: [
-                { value: 'install', label: 'Installer maintenant' },
-                { value: 'skip', label: 'Skip ces scanners (gaps)' },
-                { value: 'abort', label: 'Annuler' },
+                { value: 'install', label: 'Install now' },
+                { value: 'skip', label: 'Skip these scanners (gaps)' },
+                { value: 'abort', label: 'Cancel' },
               ],
             });
             if (p.isCancel(action) || action === 'abort') {
-              p.cancel('Annulé.');
+              p.cancel('Cancelled.');
               this.exit(1);
             }
             if (action === 'install') {
@@ -105,7 +105,7 @@ export default class Scan extends Command {
             } else {
               const filtered = dropScannersFromRecipe(recipe, pre.missing);
               effectiveRecipe = filtered.recipe;
-              for (const g of filtered.gaps) coverageGaps.push({ ...g, reason: 'outil manquant (skip preflight)' });
+              for (const g of filtered.gaps) coverageGaps.push({ ...g, reason: 'missing tool (skip preflight)' });
             }
           }
         }
@@ -121,7 +121,7 @@ export default class Scan extends Command {
     // Add registry-level gaps to coverage gaps.
     for (const gap of result.gaps) {
       const [target, scanner] = gap.split(':');
-      if (target && scanner) coverageGaps.push({ target, scanner, reason: 'scanner non enregistré' });
+      if (target && scanner) coverageGaps.push({ target, scanner, reason: 'scanner not registered' });
     }
 
     // ---- Report ----
@@ -142,20 +142,20 @@ export default class Scan extends Command {
           const pdfPath = await renderPdf(mdPath, { template: 'eisvogel', toc: true });
           pdfPaths.push(pdfPath);
         } catch (err) {
-          this.warn(`PDF non généré: ${err instanceof Error ? err.message : String(err)}`);
+          this.warn(`PDF not generated: ${err instanceof Error ? err.message : String(err)}`);
         }
       }
 
       if (!quiet) {
         const errors = result.results.filter((r) => r.error).length;
         const lines = [
-          `${theme.bold('Audit terminé')} · ${effectiveRecipe.name}`,
+          `${theme.bold('Audit complete')} · ${effectiveRecipe.name}`,
           '',
-          `${summary.totalFindings} findings · ${effectiveRecipe.targets.length} cibles`,
+          `${summary.totalFindings} findings · ${effectiveRecipe.targets.length} targets`,
           `Score: ${summary.score} (verdict: ${summary.verdict})`,
-          errors > 0 ? `${ICON.warn} ${errors} scanner(s) en échec` : `${ICON.ok} aucun échec scanner`,
+          errors > 0 ? `${ICON.warn} ${errors} scanner(s) failed` : `${ICON.ok} no scanner failures`,
           coverageGaps.length > 0 ? `${ICON.warn} ${coverageGaps.length} coverage gap(s)` : '',
-          filteredOut > 0 ? `${theme.dim('⊘')} ${filteredOut} finding(s) masqué(s) par défaut (utiliser --full pour rapport complet)` : '',
+          filteredOut > 0 ? `${theme.dim('⊘')} ${filteredOut} finding(s) hidden by default (use --full for the full report)` : '',
           '',
           `📂 ${outDir}`,
           `   ├─ report.md`,
@@ -194,12 +194,12 @@ export default class Scan extends Command {
     // Build an ad-hoc recipe from --target / --url + --stacks + --scanners.
     const scanners = typeof flags.scanners === 'string' ? flags.scanners.split(',').map((s) => s.trim()).filter(Boolean) : [];
     if (scanners.length === 0) {
-      this.error('Fournis --recipe OU --scanners (et --target/--url + --stacks)', { exit: 1 });
+      this.error('Provide --recipe OR --scanners (and --target/--url + --stacks)', { exit: 1 });
     }
 
     if (typeof flags.target === 'string') {
       const stacks = typeof flags.stacks === 'string' ? flags.stacks.split(',').map((s) => s.trim()) : [];
-      if (stacks.length === 0) this.error('--stacks requis avec --target', { exit: 1 });
+      if (stacks.length === 0) this.error('--stacks required with --target', { exit: 1 });
       const targetPath = flags.target;
       return {
         name: `adhoc-${path.basename(targetPath)}`,
@@ -230,7 +230,7 @@ export default class Scan extends Command {
       };
     }
 
-    this.error('Précise --target <path> ou --url <url> en mode ad-hoc', { exit: 1 });
+    this.error('Provide --target <path> or --url <url> in ad-hoc mode', { exit: 1 });
   }
 
   private async runInstallPlan(
@@ -241,19 +241,19 @@ export default class Scan extends Command {
     for (const step of plan) {
       if (!auto) {
         const proceed = await p.confirm({
-          message: `Installer ${step.scanner} via \`${step.pretty}\` ?${step.needsSudo ? ' (sudo)' : ''}${
+          message: `Install ${step.scanner} via \`${step.pretty}\`?${step.needsSudo ? ' (sudo)' : ''}${
             step.approxSizeMB ? ` (~${step.approxSizeMB} MB)` : ''
           }`,
         });
         if (p.isCancel(proceed) || !proceed) continue;
       }
       const spinner = p.spinner();
-      spinner.start(`Installation ${step.scanner}`);
+      spinner.start(`Installing ${step.scanner}`);
       try {
         await exec(step.command, { timeoutMs: 600_000 });
-        spinner.stop(`${step.scanner} installé`);
+        spinner.stop(`${step.scanner} installed`);
       } catch (err) {
-        spinner.stop(`${step.scanner} ECHEC: ${err instanceof Error ? err.message : String(err)}`);
+        spinner.stop(`${step.scanner} FAILED: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
   }

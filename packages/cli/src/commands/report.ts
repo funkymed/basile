@@ -7,7 +7,7 @@ import { writeReport } from '@basile/reporter-markdown';
 import { renderPdf } from '@basile/reporter-pdf';
 
 export default class Report extends Command {
-  static override description = 'Consolide un run de scan en rapport (Markdown + PDF) sans relancer les scanners';
+  static override description = 'Consolidate a scan run into a report (Markdown + PDF) without re-running scanners';
 
   static override examples = [
     'basile report --from reports/2026-05-06-audit-client-x',
@@ -16,12 +16,12 @@ export default class Report extends Command {
   ];
 
   static override flags = {
-    from: Flags.string({ char: 'f', required: true, description: 'Dossier produit par scan (contient meta.json + findings.ndjson)' }),
-    recipe: Flags.string({ char: 'r', description: 'Override la recipe de meta.json (utile pour itérer sur exclude_findings sans rescan)' }),
-    template: Flags.string({ description: 'Template à utiliser', options: ['executive', 'technical', 'security'] }),
-    pdf: Flags.boolean({ description: 'Génère aussi un PDF via Pandoc' }),
-    output: Flags.string({ char: 'o', description: 'Dossier de sortie (défaut: même que --from)' }),
-    full: Flags.boolean({ description: 'Rapport complet (toutes sévérités, pas de filtre)' }),
+    from: Flags.string({ char: 'f', required: true, description: 'Directory produced by scan (contains meta.json + findings.ndjson)' }),
+    recipe: Flags.string({ char: 'r', description: 'Override the recipe from meta.json (useful for iterating on exclude_findings without rescan)' }),
+    template: Flags.string({ description: 'Template to use', options: ['executive', 'technical', 'security'] }),
+    pdf: Flags.boolean({ description: 'Also generate a PDF via Pandoc' }),
+    output: Flags.string({ char: 'o', description: 'Output directory (default: same as --from)' }),
+    full: Flags.boolean({ description: 'Full report (all severities, no filter)' }),
     quiet: Flags.boolean({ char: 'q' }),
   };
 
@@ -37,7 +37,7 @@ export default class Report extends Command {
     try {
       meta = JSON.parse(await readFile(metaPath, 'utf8'));
     } catch {
-      this.error(`meta.json introuvable dans ${fromDir}. Lance d'abord 'basile scan'.`, { exit: 1 });
+      this.error(`meta.json not found in ${fromDir}. Run 'basile scan' first.`, { exit: 1 });
     }
 
     // Override recipe from disk (--recipe flag) so user can iterate triage without rescan.
@@ -54,7 +54,7 @@ export default class Report extends Command {
     const gaps = (meta.gaps ?? []).map((g) => {
       const base: { scanner: string; reason: string; target?: string } = {
         scanner: g.scanner,
-        reason: g.reason ?? 'non spécifié',
+        reason: g.reason ?? 'unspecified',
       };
       if (g.target !== undefined) base.target = g.target;
       return base;
@@ -69,16 +69,16 @@ export default class Report extends Command {
       try {
         pdfPath = await renderPdf(mdPath, { template: 'eisvogel', toc: true });
       } catch (err) {
-        this.warn(`PDF non généré: ${err instanceof Error ? err.message : String(err)}`);
+        this.warn(`PDF not generated: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 
     if (!flags.quiet) {
       const lines = [
-        `${theme.bold('Rapport généré')} · ${meta.recipe.name}`,
+        `${theme.bold('Report generated')} · ${meta.recipe.name}`,
         '',
         `${summary.totalFindings} findings · score ${summary.score} (${summary.verdict})`,
-        ...(filteredOut > 0 ? [`${theme.dim('⊘')} ${filteredOut} finding(s) masqué(s) (utiliser --full pour rapport complet)`] : []),
+        ...(filteredOut > 0 ? [`${theme.dim('⊘')} ${filteredOut} finding(s) hidden (use --full for the full report)`] : []),
         '',
         `📂 ${outDir}`,
         `   ├─ ${path.basename(mdPath)}`,

@@ -27,7 +27,7 @@ const VALID_STACKS: Stack[] = ['php', 'symfony', 'wordpress', 'typescript', 'rea
 const VALID_CATEGORIES: ScannerCategory[] = ['security', 'quality', 'performance', 'a11y', 'deps', 'secrets', 'privacy', 'sast', 'dast', 'lint'];
 
 export default class Setup extends Command {
-  static override description = 'Vérifie et installe les scanners requis (batché par package manager, docker en parallèle)';
+  static override description = 'Verify and install required scanners (batched per package manager, parallel docker pulls)';
 
   static override examples = [
     'basile setup --recipe cookbook.yaml',
@@ -38,14 +38,14 @@ export default class Setup extends Command {
   ];
 
   static override flags = {
-    recipe: Flags.string({ char: 'r', description: 'Cookbook YAML' }),
-    scanners: Flags.string({ char: 's', description: 'Liste CSV de scanners' }),
-    stack: Flags.string({ description: `Filtre par stack (CSV) parmi: ${VALID_STACKS.join(', ')}` }),
-    category: Flags.string({ description: `Filtre par catégorie (CSV) parmi: ${VALID_CATEGORIES.join(', ')}` }),
-    all: Flags.boolean({ description: 'Tous les scanners du registre', default: false }),
-    yes: Flags.boolean({ char: 'y', description: 'Installe sans confirmation', default: false }),
-    'non-interactive': Flags.boolean({ description: 'Échoue sans prompts si manquants', default: false }),
-    'docker-concurrency': Flags.integer({ description: 'Nombre de docker pull simultanés', default: 3 }),
+    recipe: Flags.string({ char: 'r', description: 'YAML cookbook' }),
+    scanners: Flags.string({ char: 's', description: 'CSV list of scanners' }),
+    stack: Flags.string({ description: `Filter by stack (CSV) among: ${VALID_STACKS.join(', ')}` }),
+    category: Flags.string({ description: `Filter by category (CSV) among: ${VALID_CATEGORIES.join(', ')}` }),
+    all: Flags.boolean({ description: 'All scanners in the registry', default: false }),
+    yes: Flags.boolean({ char: 'y', description: 'Install without confirmation', default: false }),
+    'non-interactive': Flags.boolean({ description: 'Fail without prompts if missing', default: false }),
+    'docker-concurrency': Flags.integer({ description: 'Concurrent docker pulls', default: 3 }),
     quiet: Flags.boolean({ char: 'q', default: false }),
   };
 
@@ -55,13 +55,13 @@ export default class Setup extends Command {
 
     const scanners = await this.resolveScanners(flags);
     if (scanners.length === 0) {
-      this.error('Aucun scanner sélectionné. Précise --recipe, --scanners, --stack, --category, ou --all.', { exit: 1 });
+      this.error('No scanner selected. Pass --recipe, --scanners, --stack, --category, or --all.', { exit: 1 });
     }
 
     const result = await preflight({ kind: 'list', scanners });
 
     if (result.ok) {
-      process.stdout.write(`${theme.success(theme.bold(`${ICON.ok} Tous les scanners sont prêts (${result.ready.length}/${scanners.length}).`))}\n`);
+      process.stdout.write(`${theme.success(theme.bold(`${ICON.ok} All scanners ready (${result.ready.length}/${scanners.length}).`))}\n`);
       return;
     }
 
@@ -70,11 +70,11 @@ export default class Setup extends Command {
     }
 
     if (result.unknown.length > 0) {
-      process.stdout.write(`${theme.warn(`${ICON.warn} Scanners inconnus`)}: ${result.unknown.join(', ')}\n\n`);
+      process.stdout.write(`${theme.warn(`${ICON.warn} Unknown scanners`)}: ${result.unknown.join(', ')}\n\n`);
     }
 
     if (result.installPlan.length === 0) {
-      process.stdout.write(`${theme.warn("Aucun plan d'installation disponible.")}\n`);
+      process.stdout.write(`${theme.warn('No install plan available.')}\n`);
       this.exit(2);
     }
 
@@ -88,7 +88,7 @@ export default class Setup extends Command {
     }
 
     if (!interactive && !flags.yes) {
-      process.stdout.write(`\n${theme.bold('Commandes (mode non-interactif):')}\n`);
+      process.stdout.write(`\n${theme.bold('Commands (non-interactive mode):')}\n`);
       for (const b of batches) {
         const sudo = b.needsSudo ? theme.warn('[sudo] ') : '';
         process.stdout.write(`  ${theme.accent('$')} ${sudo}${b.pretty}\n`);
@@ -100,13 +100,13 @@ export default class Setup extends Command {
       const total = batches.reduce((acc, b) => acc + b.steps.length, 0);
       const totalMB = batches.reduce((acc, b) => acc + b.approxSizeMB, 0);
       const ok = await p.confirm({
-        message: `Installer ${theme.bold(String(total))} outil(s) en ${theme.bold(String(batches.length))} commande(s)${
-          totalMB > 0 ? ` (~${totalMB} MB téléchargement)` : ''
-        } ?`,
+        message: `Install ${theme.bold(String(total))} tool(s) in ${theme.bold(String(batches.length))} command(s)${
+          totalMB > 0 ? ` (~${totalMB} MB download)` : ''
+        }?`,
         initialValue: true,
       });
       if (p.isCancel(ok) || !ok) {
-        p.cancel('Annulé.');
+        p.cancel('Cancelled.');
         this.exit(1);
       }
     }
@@ -147,12 +147,12 @@ export default class Setup extends Command {
   }
 
   private printBatchPreview(batches: StepBatch[]): void {
-    const lines: string[] = [theme.bold('Plan d\'installation batché')];
+    const lines: string[] = [theme.bold('Batched install plan')];
     for (const b of batches) {
       const tools = b.steps.map((s) => s.scanner).join(', ');
       const sudo = b.needsSudo ? theme.warn(' [sudo]') : '';
       const size = b.approxSizeMB > 0 ? theme.dim(` ~${b.approxSizeMB}MB`) : '';
-      lines.push(`  ${theme.accent(b.manager.padEnd(7))} ${theme.dim('→')} ${theme.bold(String(b.steps.length))} outil(s)${sudo}${size}`);
+      lines.push(`  ${theme.accent(b.manager.padEnd(7))} ${theme.dim('→')} ${theme.bold(String(b.steps.length))} tool(s)${sudo}${size}`);
       lines.push(`    ${theme.dim(tools)}`);
     }
     process.stdout.write(`${boxen(lines.join('\n'), { padding: 1, borderStyle: 'round', borderColor: 'cyan' })}\n`);
@@ -172,7 +172,7 @@ export default class Setup extends Command {
     // 2. Docker pulls: in parallel (capped).
     if (dockerBatches.length > 0) {
       const spinner = p.spinner();
-      spinner.start(`${dockerBatches.length} docker pull en parallèle (${dockerConcurrency} simultanés)…`);
+      spinner.start(`${dockerBatches.length} docker pulls in parallel (${dockerConcurrency} concurrent)…`);
       let done = 0;
       const updateSpinner = (label: string) => {
         spinner.message(`docker [${done}/${dockerBatches.length}] · ${label}`);
@@ -195,7 +195,7 @@ export default class Setup extends Command {
         );
       }
       await Promise.all(workers);
-      spinner.stop(`${theme.success(ICON.ok)} ${dockerBatches.length} images docker pullées`);
+      spinner.stop(`${theme.success(ICON.ok)} ${dockerBatches.length} docker images pulled`);
     }
 
     return outcomes;
@@ -207,7 +207,7 @@ export default class Setup extends Command {
     const spinner = opts.silent ? null : p.spinner();
     spinner?.start(`${batch.manager}: ${tools}`);
     try {
-      if (!batch.command) throw new Error('Batch sans commande');
+      if (!batch.command) throw new Error('Batch with no command');
       await exec(batch.command, { timeoutMs: 1_200_000 });
       spinner?.stop(`${theme.success(ICON.ok)} ${batch.manager}: ${tools}`);
       return { batch, status: 'ok', durationMs: Date.now() - start };
@@ -225,13 +225,13 @@ export default class Setup extends Command {
     const totalDuration = outcomes.reduce((acc, o) => acc + o.durationMs, 0);
 
     const lines = [
-      `${theme.success(ICON.ok)} Installés : ${theme.bold(String(okScanners.length))}`,
-      `${theme.error(ICON.fail)} Échecs    : ${theme.bold(String(failBatches.length))} batch(s)`,
-      `${theme.dim('⏱')}  Durée     : ${theme.bold(`${(totalDuration / 1000).toFixed(1)}s`)}`,
+      `${theme.success(ICON.ok)} Installed : ${theme.bold(String(okScanners.length))}`,
+      `${theme.error(ICON.fail)} Failures  : ${theme.bold(String(failBatches.length))} batch(es)`,
+      `${theme.dim('⏱')}  Duration  : ${theme.bold(`${(totalDuration / 1000).toFixed(1)}s`)}`,
     ];
     if (failBatches.length > 0) {
       lines.push('');
-      lines.push(theme.error('Batches en échec :'));
+      lines.push(theme.error('Failed batches:'));
       for (const f of failBatches) {
         lines.push(`  ${theme.dim('·')} ${f.batch.manager}: ${f.batch.steps.map((s) => s.scanner).join(', ')}`);
         if (f.error) lines.push(`    ${theme.dim(f.error.split('\n')[0]?.slice(0, 100) ?? '')}`);
@@ -239,15 +239,15 @@ export default class Setup extends Command {
     }
     if (stillMissing.length > 0) {
       lines.push('');
-      lines.push(theme.warn(`Encore manquants : ${stillMissing.join(', ')}`));
+      lines.push(theme.warn(`Still missing: ${stillMissing.join(', ')}`));
     } else {
       lines.push('');
-      lines.push(theme.success('Tous les scanners requis sont prêts.'));
+      lines.push(theme.success('All required scanners are ready.'));
     }
 
     process.stdout.write(
       `\n${boxen(lines.join('\n'), {
-        title: 'Résumé setup',
+        title: 'Setup summary',
         titleAlignment: 'left',
         padding: 1,
         borderStyle: 'round',

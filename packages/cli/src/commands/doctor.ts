@@ -12,10 +12,10 @@ import { printBanner } from '../ui/banner.js';
 import { renderStatusTable } from '../ui/table.js';
 
 export default class Doctor extends Command {
-  static override description = 'Diagnostique l\'environnement BASILE et l\'état des scanners';
+  static override description = 'Diagnose BASILE environment and scanner status';
 
   static override flags = {
-    quiet: Flags.boolean({ char: 'q', description: 'Mode silencieux (pas de banner)', default: false }),
+    quiet: Flags.boolean({ char: 'q', description: 'Quiet mode (no banner)', default: false }),
   };
 
   public async run(): Promise<void> {
@@ -31,13 +31,13 @@ export default class Doctor extends Command {
 
     const lines = [
       `${theme.bold('Node')}     ${node.startsWith('20') || Number(node.split('.')[0]) >= 20 ? theme.success(ICON.ok) : theme.error(ICON.fail)} ${node}`,
-      `${theme.bold('Docker')}   ${docker ? theme.success(ICON.ok) : theme.warn(ICON.warn)} ${docker ? 'disponible' : 'non détecté'}`,
-      `${theme.bold('PMs')}      ${pms.length > 0 ? theme.success(pms.join(', ')) : theme.warn('aucun détecté')}`,
+      `${theme.bold('Docker')}   ${docker ? theme.success(ICON.ok) : theme.warn(ICON.warn)} ${docker ? 'available' : 'not detected'}`,
+      `${theme.bold('PMs')}      ${pms.length > 0 ? theme.success(pms.join(', ')) : theme.warn('none detected')}`,
     ];
 
     process.stdout.write(
       `${boxen(lines.join('\n'), {
-        title: 'Environnement',
+        title: 'Environment',
         titleAlignment: 'left',
         padding: 1,
         borderStyle: 'round',
@@ -52,6 +52,6 @@ export default class Doctor extends Command {
 
     const ready = statuses.filter((s) => s.ready).length;
     const total = statuses.length;
-    process.stdout.write(`\n${theme.dim(`${ready}/${total} scanners prêts`)}\n`);
+    process.stdout.write(`\n${theme.dim(`${ready}/${total} scanners ready`)}\n`);
   }
 }

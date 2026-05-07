@@ -41,18 +41,18 @@ const GROUP_LABEL: Record<Group, string> = {
   php: 'PHP / Symfony',
   js: 'JavaScript / TypeScript',
   web: 'Web / URL',
-  universal: 'Multi-langage',
+  universal: 'Multi-language',
   wordpress: 'WordPress',
 };
 
 const GROUP_ORDER: Group[] = ['universal', 'js', 'php', 'web', 'wordpress'];
 
 export default class ListScanners extends Command {
-  static override description = 'Liste tous les scanners connus, groupés par catégorie';
+  static override description = 'List all known scanners, grouped by category';
   static override aliases = ['scanners'];
 
   static override flags = {
-    quiet: Flags.boolean({ char: 'q', description: 'Mode silencieux', default: false }),
+    quiet: Flags.boolean({ char: 'q', description: 'Quiet mode', default: false }),
   };
 
   public async run(): Promise<void> {

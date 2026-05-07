@@ -178,4 +178,3 @@ UI modes (`--ui`): `pretty` (TTY), `plain` (CI), `json` (NDJSON pipe), `quiet`.
 - Examples: [`docs/examples/`](docs/examples/)
 - Architecture & contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Build & npm release: [`docs/internal/release.md`](docs/internal/release.md)
-- RFC-001 spec: [`docs/rfc/RFC-001-audit-multi-stack.md`](docs/rfc/RFC-001-audit-multi-stack.md)

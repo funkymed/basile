@@ -180,7 +180,7 @@ export async function execHybrid(spec: HybridSpec): Promise<ExecResult & { mode:
   }
   if (!hasDocker()) {
     throw new Error(
-      `Outil "${spec.localBin}" introuvable en local et Docker non disponible. Installer ${spec.localBin} ou Docker.`,
+      `Tool "${spec.localBin}" not found locally and Docker not available. Install ${spec.localBin} or Docker.`,
     );
   }
   const cmd = buildDockerRun(spec.docker);

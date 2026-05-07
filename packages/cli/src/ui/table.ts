@@ -19,7 +19,7 @@ export function renderStatusTable(statuses: InstallStatus[]): string {
       theme.bold('Scanner'),
       theme.bold('Local'),
       theme.bold('Docker'),
-      theme.bold('Statut'),
+      theme.bold('Status'),
     ],
     style: { head: [], border: [] },
   });

@@ -7,7 +7,7 @@ export class ScannerRegistry {
 
   register(scanner: Scanner): this {
     if (this.scanners.has(scanner.name)) {
-      throw new Error(`Scanner déjà enregistré: ${scanner.name}`);
+      throw new Error(`Scanner already registered: ${scanner.name}`);
     }
     this.scanners.set(scanner.name, scanner);
     return this;

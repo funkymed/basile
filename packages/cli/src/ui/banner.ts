@@ -32,7 +32,7 @@ export async function printBanner(): Promise<void> {
   const ascii = figlet.textSync('BASILE', { font: 'ANSI Shadow' });
   const colored = gradient(['#22d3ee', '#a855f7'])(ascii);
 
-  const subtitle = `${theme.dim('Audit multi-stack à la carte')}  ${theme.accent(`v${version}`)}`;
+  const subtitle = `${theme.dim('À-la-carte multi-stack audit')}  ${theme.accent(`v${version}`)}`;
 
   const content = `${colored}\n${subtitle}`;
 
