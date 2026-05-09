@@ -19,10 +19,18 @@ export const clocScanner: Scanner = {
       throw new Error('Binaire "cloc" introuvable. Installer cloc.');
     }
     const excludes = mergeExcludes(target.exclude_paths ?? []);
-    const r = await exec(
-      ['cloc', '--json', `--exclude-dir=${excludes.join(',')}`, target.path],
-      { okExitCodes: [0], timeoutMs: 2 * 60_000 },
-    );
+    // cloc `--exclude-dir` n'accepte que des basenames (pas de slashes).
+    // Multi-segment paths (var/cache, bootstrap/cache, public/build…) feraient
+    // crasher cloc avec exit 2. On les filtre — perte minimale (LOC count, pas
+    // critique pour rapport sécurité). Alternative `--fullpath --not-match-d=REGEX`
+    // requiert Perl Regexp::Common pas dispo partout.
+    const dirOnly = excludes.filter((p) => !p.includes('/'));
+    const args = ['cloc', '--json'];
+    if (dirOnly.length > 0) {
+      args.push(`--exclude-dir=${dirOnly.join(',')}`);
+    }
+    args.push(target.path);
+    const r = await exec(args, { okExitCodes: [0], timeoutMs: 2 * 60_000 });
     return parseClocJson(r.stdout, target.id);
   },
 };
