@@ -109,7 +109,7 @@ export function parseNpmAuditJson(json: string, targetId: string): Finding[] {
       file: 'package.json',
       ...(ruleSource ? { rule: ruleSource } : {}),
       ...(cweStr ? { cwe: cweStr } : {}),
-      message: title ?? `Vulnérabilité dans ${name}`,
+      message: title ?? `Vulnerability in ${name}`,
       raw: vuln,
     });
   }

@@ -117,7 +117,7 @@ export function parseComposerAuditJson(json: string, targetId: string): Finding[
       const cwe = extractCwe(adv);
       const ruleId = adv.advisoryId ?? adv.cve ?? 'composer-audit';
       const pkgName = adv.packageName ?? pkg;
-      const affected = adv.affectedVersions ? ` (versions affectées: ${adv.affectedVersions})` : '';
+      const affected = adv.affectedVersions ? ` (affected versions: ${adv.affectedVersions})` : '';
       const cveTag = adv.cve ? ` [${adv.cve}]` : '';
       findings.push({
         scanner: 'composer-audit',
@@ -127,7 +127,7 @@ export function parseComposerAuditJson(json: string, targetId: string): Finding[
         file: 'composer.lock',
         rule: ruleId,
         ...(cwe ? { cwe } : {}),
-        message: `${pkgName}: ${adv.title ?? 'Vulnérabilité connue'}${cveTag}${affected}`,
+        message: `${pkgName}: ${adv.title ?? 'Known vulnerability'}${cveTag}${affected}`,
         raw: adv,
       });
     }

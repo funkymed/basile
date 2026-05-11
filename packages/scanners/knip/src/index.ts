@@ -78,7 +78,7 @@ export function parseKnipJson(json: string, targetId: string): Finding[] {
       target: targetId,
       file,
       rule: 'knip-files',
-      message: 'Fichier inutilisé',
+      message: 'Unused file',
     });
   }
 
@@ -107,7 +107,7 @@ export function parseKnipJson(json: string, targetId: string): Finding[] {
       target: targetId,
       file: 'package.json',
       rule: 'knip-dependencies-unused',
-      message: `Dépendance inutilisée: ${name}`,
+      message: `Unused dependency: ${name}`,
     });
   }
   for (const dep of unlistedDeps) {
@@ -119,7 +119,7 @@ export function parseKnipJson(json: string, targetId: string): Finding[] {
       target: targetId,
       file: 'package.json',
       rule: 'knip-dependencies-unlisted',
-      message: `Dépendance non listée: ${name}`,
+      message: `Unlisted dependency: ${name}`,
     });
   }
 
@@ -140,7 +140,7 @@ export function parseKnipJson(json: string, targetId: string): Finding[] {
       ...(item.file ? { file: item.file } : {}),
       ...(item.line !== undefined ? { line: item.line } : {}),
       rule: 'knip-exports-unused',
-      message: `Export inutilisé: ${symbol}`,
+      message: `Unused export: ${symbol}`,
     });
   }
 

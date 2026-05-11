@@ -68,7 +68,7 @@ export function parseDepcheckJson(json: string, targetId: string): Finding[] {
       target: targetId,
       file: 'package.json',
       rule: 'depcheck-unused',
-      message: `Dépendance prod non utilisée: ${name}`,
+      message: `Unused prod dependency: ${name}`,
     });
   }
   for (const name of report.devDependencies ?? []) {
@@ -79,7 +79,7 @@ export function parseDepcheckJson(json: string, targetId: string): Finding[] {
       target: targetId,
       file: 'package.json',
       rule: 'depcheck-unused',
-      message: `Dev dep non utilisée: ${name}`,
+      message: `Unused dev dependency: ${name}`,
     });
   }
   for (const name of Object.keys(report.missing ?? {})) {
@@ -90,7 +90,7 @@ export function parseDepcheckJson(json: string, targetId: string): Finding[] {
       target: targetId,
       file: 'package.json',
       rule: 'depcheck-missing',
-      message: `Dépendance manquante: ${name}`,
+      message: `Missing dependency: ${name}`,
     });
   }
   return findings;

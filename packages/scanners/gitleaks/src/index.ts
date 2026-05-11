@@ -87,7 +87,7 @@ export function parseGitleaksJson(json: string, targetId: string): Finding[] {
       category: 'secrets',
       severity: 'critical',
       target: targetId,
-      message: l.Description ?? l.RuleID ?? 'Secret détecté',
+      message: l.Description ?? l.RuleID ?? 'Secret detected',
       raw: l,
     };
     if (l.File) finding.file = l.File;

@@ -17,12 +17,12 @@ export class PandocNotFoundError extends Error {
   constructor() {
     super(
       [
-        'pandoc introuvable. Installation requise pour générer un PDF.',
+        'pandoc not found. Installation required to generate a PDF.',
         '',
         'macOS:    brew install pandoc && brew install --cask basictex',
         'Debian:   sudo apt-get install pandoc texlive-xetex',
         '',
-        'Pour le template eisvogel: tlmgr install eisvogel',
+        'For the eisvogel template: tlmgr install eisvogel',
       ].join('\n'),
     );
     this.name = 'PandocNotFoundError';

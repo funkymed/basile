@@ -108,7 +108,7 @@ function pushVulns(
   for (const v of vulns) {
     const cve = v.references?.cve?.[0];
     const cwe = extractCwe(v);
-    const fix = v.fixed_in ? ` (corrigé en ${v.fixed_in})` : ' (aucun correctif disponible)';
+    const fix = v.fixed_in ? ` (fixed in ${v.fixed_in})` : ' (no fix available)';
     const cveTag = cve ? ` [CVE-${cve}]` : '';
     out.push({
       scanner: 'wpscan',
@@ -117,7 +117,7 @@ function pushVulns(
       target: targetId,
       rule: cve ? `CVE-${cve}` : 'wpscan',
       ...(cwe ? { cwe } : {}),
-      message: `${source}: ${v.title ?? 'Vulnérabilité inconnue'}${cveTag}${fix}`,
+      message: `${source}: ${v.title ?? 'Unknown vulnerability'}${cveTag}${fix}`,
       raw: v,
     });
   }
@@ -131,7 +131,7 @@ export function parseWpscanJson(json: string, targetId: string): Finding[] {
   try {
     parsed = JSON.parse(trimmed);
   } catch (e) {
-    throw new Error(`Sortie wpscan invalide (JSON parse): ${(e as Error).message}`);
+    throw new Error(`Invalid wpscan output (JSON parse): ${(e as Error).message}`);
   }
   const report = parsed as WpscanReport;
   if (!report || typeof report !== 'object') return [];
@@ -142,14 +142,14 @@ export function parseWpscanJson(json: string, targetId: string): Finding[] {
 
   if (report.main_theme) {
     const slug = report.main_theme.slug ?? 'main_theme';
-    pushVulns(findings, targetId, `Thème ${slug}`, report.main_theme.vulnerabilities);
+    pushVulns(findings, targetId, `Theme ${slug}`, report.main_theme.vulnerabilities);
   }
 
   for (const [name, plugin] of Object.entries(report.plugins ?? {})) {
     pushVulns(findings, targetId, `Plugin ${name}`, plugin.vulnerabilities);
   }
   for (const [name, theme] of Object.entries(report.themes ?? {})) {
-    pushVulns(findings, targetId, `Thème ${name}`, theme.vulnerabilities);
+    pushVulns(findings, targetId, `Theme ${name}`, theme.vulnerabilities);
   }
 
   return findings;

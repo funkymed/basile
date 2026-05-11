@@ -131,7 +131,7 @@ export function parseTrivyJson(json: string, targetId: string): Finding[] {
         category: 'secrets',
         severity: mapSeverity(s.Severity),
         target: targetId,
-        message: s.Title ?? s.RuleID ?? 'Secret détecté',
+        message: s.Title ?? s.RuleID ?? 'Secret detected',
         raw: s,
       };
       if (file) f.file = file;

@@ -29,7 +29,7 @@ export const tscScanner: Scanner = {
           category: 'quality',
           severity: 'info',
           target: target.id,
-          message: "Aucun tsconfig.json trouvé — analyse tsc ignorée.",
+          message: 'No tsconfig.json found — tsc analysis skipped.',
         },
       ];
     }

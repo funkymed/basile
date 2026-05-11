@@ -30,28 +30,28 @@ type HeaderRule = {
 const MISSING_RULES: Array<{ name: string; alt?: string[]; rule: HeaderRule }> = [
   {
     name: 'strict-transport-security',
-    rule: { rule: 'hsts-missing', severity: 'high', message: 'En-tête Strict-Transport-Security manquant' },
+    rule: { rule: 'hsts-missing', severity: 'high', message: 'Header Strict-Transport-Security missing' },
   },
   {
     name: 'content-security-policy',
-    rule: { rule: 'csp-missing', severity: 'high', message: 'En-tête Content-Security-Policy manquant' },
+    rule: { rule: 'csp-missing', severity: 'high', message: 'Header Content-Security-Policy missing' },
   },
   {
     name: 'x-content-type-options',
-    rule: { rule: 'xcto-missing', severity: 'medium', message: 'En-tête X-Content-Type-Options manquant ou différent de nosniff' },
+    rule: { rule: 'xcto-missing', severity: 'medium', message: 'Header X-Content-Type-Options missing or not nosniff' },
   },
   {
     name: 'x-frame-options',
     alt: ['content-security-policy'],
-    rule: { rule: 'xfo-missing', severity: 'medium', message: 'En-tête X-Frame-Options ou CSP frame-ancestors manquant' },
+    rule: { rule: 'xfo-missing', severity: 'medium', message: 'Header X-Frame-Options or CSP frame-ancestors missing' },
   },
   {
     name: 'referrer-policy',
-    rule: { rule: 'referrer-policy-missing', severity: 'low', message: 'En-tête Referrer-Policy manquant' },
+    rule: { rule: 'referrer-policy-missing', severity: 'low', message: 'Header Referrer-Policy missing' },
   },
   {
     name: 'permissions-policy',
-    rule: { rule: 'permissions-policy-missing', severity: 'low', message: 'En-tête Permissions-Policy manquant' },
+    rule: { rule: 'permissions-policy-missing', severity: 'low', message: 'Header Permissions-Policy missing' },
   },
 ];
 
@@ -101,7 +101,7 @@ export function analyzeHeaders(raw: string, targetId: string): Finding[] {
       toFinding(targetId, {
         rule: 'server-version-leak',
         severity: 'low',
-        message: `En-tête Server expose une version: ${server}`,
+        message: `Server header exposes version: ${server}`,
       }),
     );
   }
@@ -110,7 +110,7 @@ export function analyzeHeaders(raw: string, targetId: string): Finding[] {
       toFinding(targetId, {
         rule: 'x-powered-by-leak',
         severity: 'low',
-        message: `En-tête X-Powered-By exposé: ${headers.get('x-powered-by')}`,
+        message: `X-Powered-By header exposed: ${headers.get('x-powered-by')}`,
       }),
     );
   }

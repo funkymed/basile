@@ -215,6 +215,6 @@ export function applyReportFilters(
 
 function describeFilter(recipe: Recipe, _all: Finding[]): string {
   if (recipe.report.min_severity) return `min_severity=${recipe.report.min_severity}`;
-  if (recipe.report.smart_filter === false) return 'smart_filter désactivé (rapport complet)';
-  return 'défaut: medium/low/info masqués (utiliser --full pour rapport complet)';
+  if (recipe.report.smart_filter === false) return 'smart_filter disabled (full report)';
+  return 'default: medium/low/info hidden (use --full for the complete report)';
 }

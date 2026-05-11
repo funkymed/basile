@@ -29,7 +29,7 @@ export const eslintScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'code') return [];
     if (!which('eslint')) {
-      throw new Error('Binaire "eslint" introuvable. Installer ESLint avant exécution.');
+      throw new Error('Binary "eslint" not found. Install ESLint before running.');
     }
     const excludes = mergeExcludes(target.exclude_paths ?? []);
     const ignoreArgs = excludes.flatMap((e) => ['--ignore-pattern', `**/${e}/**`]);

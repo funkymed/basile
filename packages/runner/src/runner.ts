@@ -67,13 +67,13 @@ export async function runScan(
 
   const tasks = new Listr<Ctx>(
     recipe.targets.map((target) => ({
-      title: `Cible ${targetIdentifier(target)}`,
+      title: `Target ${targetIdentifier(target)}`,
       task: (_, parent) => {
         const scanners = registry.resolveForTarget(target);
         if (scanners.length === 0) {
           return parent.newListr([
             {
-              title: 'Aucun scanner applicable',
+              title: 'No applicable scanner',
               task: () => {
                 /* no-op */
               },
