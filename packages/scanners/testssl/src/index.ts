@@ -25,7 +25,7 @@ export const testsslScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'url') return [];
     if (!which('testssl.sh')) {
-      throw new Error('Binaire "testssl.sh" introuvable.');
+      throw new Error('Binary "testssl.sh" not found.');
     }
     const work = mkdtempSync(path.join(tmpdir(), 'basile-testssl-'));
     const reportPath = path.join(work, 'report.json');

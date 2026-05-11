@@ -16,7 +16,7 @@ export const madgeScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'code') return [];
     if (!which('madge')) {
-      throw new Error('Binaire "madge" introuvable. Installer Madge globalement (npm i -g madge).');
+      throw new Error('Binary "madge" not found. Install Madge globally (npm i -g madge).');
     }
     const excludes = mergeExcludes(target.exclude_paths ?? []);
     // madge --exclude takes a regex; build alternation of escaped dir names.

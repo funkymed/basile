@@ -42,6 +42,6 @@ describe('wpscanScanner', () => {
     });
     const plugin = findings.find((f) => f.message.includes('Plugin contact-form-7'));
     expect(plugin?.severity).toBe('medium');
-    expect(plugin?.message).toContain('aucun correctif');
+    expect(plugin?.message).toContain('no fix available');
   });
 });

@@ -21,7 +21,7 @@ export const pa11yScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'url') return [];
     if (!which('pa11y')) {
-      throw new Error('Binaire "pa11y" introuvable. Installer pa11y (npm i -g pa11y).');
+      throw new Error('Binary "pa11y" not found. Install pa11y (npm i -g pa11y).');
     }
     const cmd = ['pa11y', '--reporter', 'json', '--threshold', '1000', target.url];
     let stdout: string;

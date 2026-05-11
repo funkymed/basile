@@ -5,7 +5,7 @@
     "url": "https://github.com/funkymed/basile"
   },
   "displayName": "BASILE",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "À-la-carte multi-stack audit CLI (code + URL) with YAML cookbook",
   "license": "MIT",

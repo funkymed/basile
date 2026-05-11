@@ -69,9 +69,9 @@ export async function renderPdf(mdPath: string, opts: RenderPdfOptions = {}): Pr
       let hint: string | undefined;
       if (/fontspec/i.test(stderr) || /xelatex/i.test(stderr)) {
         hint =
-          'xelatex ou fontspec manquant. macOS: brew install --cask basictex puis sudo tlmgr update --self && sudo tlmgr install eisvogel fontspec.';
+          'xelatex or fontspec missing. macOS: brew install --cask basictex then sudo tlmgr update --self && sudo tlmgr install eisvogel fontspec.';
       } else if (/template.*eisvogel/i.test(stderr)) {
-        hint = 'Template eisvogel introuvable. Installer: tlmgr install eisvogel.';
+        hint = 'Eisvogel template not found. Install: tlmgr install eisvogel.';
       }
       throw new PdfRenderError(err.message, hint);
     }

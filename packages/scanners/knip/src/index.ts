@@ -33,7 +33,7 @@ export const knipScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'code') return [];
     if (!which('knip')) {
-      throw new Error('Binaire "knip" introuvable. Installer Knip globalement (npm i -g knip).');
+      throw new Error('Binary "knip" not found. Install Knip globally (npm i -g knip).');
     }
     const cmd = ['knip', '--reporter', 'json'];
     let stdout: string;

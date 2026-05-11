@@ -29,10 +29,10 @@ describe('knipScanner', () => {
     const findings = parseKnipJson(fixture, 't1');
     // 1 file + 2 deps unused + 1 unlisted + 1 export
     expect(findings).toHaveLength(5);
-    expect(findings.some((f) => f.message === 'Fichier inutilisé' && f.file === 'src/dead.ts')).toBe(true);
-    expect(findings.some((f) => f.message === 'Dépendance inutilisée: lodash')).toBe(true);
-    expect(findings.some((f) => f.message === 'Dépendance inutilisée: old-tool')).toBe(true);
-    expect(findings.some((f) => f.message === 'Dépendance non listée: missing-pkg' && f.severity === 'high')).toBe(true);
-    expect(findings.some((f) => f.message === 'Export inutilisé: unusedFn' && f.line === 12)).toBe(true);
+    expect(findings.some((f) => f.message === 'Unused file' && f.file === 'src/dead.ts')).toBe(true);
+    expect(findings.some((f) => f.message === 'Unused dependency: lodash')).toBe(true);
+    expect(findings.some((f) => f.message === 'Unused dependency: old-tool')).toBe(true);
+    expect(findings.some((f) => f.message === 'Unlisted dependency: missing-pkg' && f.severity === 'high')).toBe(true);
+    expect(findings.some((f) => f.message === 'Unused export: unusedFn' && f.line === 12)).toBe(true);
   });
 });

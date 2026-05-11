@@ -24,7 +24,7 @@ export const ssllabsScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'url') return [];
     if (!which('ssllabs-scan')) {
-      throw new Error('Binaire "ssllabs-scan" introuvable.');
+      throw new Error('Binary "ssllabs-scan" not found.');
     }
     const host = new URL(target.url).hostname;
     const r = await exec(['ssllabs-scan', '-quiet', '-usecache', host], {

@@ -57,7 +57,7 @@ export const npmAuditScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'code') return [];
     if (!which('npm')) {
-      throw new Error('Binaire "npm" introuvable. Installer Node.js/npm.');
+      throw new Error('Binary "npm" not found. Install Node.js/npm.');
     }
     if (!existsSync(path.join(target.path, 'package-lock.json'))) {
       // npm audit nécessite un lockfile; sortie silencieuse.

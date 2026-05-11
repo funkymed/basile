@@ -19,7 +19,7 @@ export const tscScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'code') return [];
     if (!which('tsc')) {
-      throw new Error('Binaire "tsc" introuvable. Installer TypeScript globalement (npm i -g typescript).');
+      throw new Error('Binary "tsc" not found. Install TypeScript globally (npm i -g typescript).');
     }
     const tsconfig = path.join(target.path, 'tsconfig.json');
     if (!existsSync(tsconfig)) {

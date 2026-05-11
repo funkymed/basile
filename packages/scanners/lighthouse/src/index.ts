@@ -26,7 +26,7 @@ export const lighthouseScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'url') return [];
     if (!which('lighthouse')) {
-      throw new Error('Binaire "lighthouse" introuvable. Installer Lighthouse CLI.');
+      throw new Error('Binary "lighthouse" not found. Install Lighthouse CLI.');
     }
     const cmd = [
       'lighthouse',

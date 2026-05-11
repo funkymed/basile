@@ -23,7 +23,7 @@ export const depcheckScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'code') return [];
     if (!which('depcheck')) {
-      throw new Error('Binaire "depcheck" introuvable. Installer Depcheck globalement (npm i -g depcheck).');
+      throw new Error('Binary "depcheck" not found. Install Depcheck globally (npm i -g depcheck).');
     }
     const excludes = mergeExcludes(target.exclude_paths ?? []);
     const cmd = ['depcheck', '--json', `--ignore-dirs=${excludes.join(',')}`];

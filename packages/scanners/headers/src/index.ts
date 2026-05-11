@@ -11,7 +11,7 @@ export const headersScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'url') return [];
     if (!which('curl')) {
-      throw new Error('Binaire "curl" introuvable.');
+      throw new Error('Binary "curl" not found.');
     }
     const r = await exec(
       ['curl', '-sI', '-o', '/dev/null', '-D', '-', '--max-time', '30', target.url],

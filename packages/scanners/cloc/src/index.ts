@@ -17,7 +17,7 @@ export const clocScanner: Scanner = {
   async run(target: RecipeTarget): Promise<Finding[]> {
     if (target.type !== 'code') return [];
     if (!which('cloc')) {
-      throw new Error('Binaire "cloc" introuvable. Installer cloc.');
+      throw new Error('Binary "cloc" not found. Install cloc.');
     }
     const excludes = mergeExcludes(target.exclude_paths ?? []);
     // cloc `--exclude-dir` n'accepte que des basenames (pas de slashes).
