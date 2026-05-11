@@ -26,6 +26,9 @@ importers:
       '@basile/runner':
         specifier: workspace:*
         version: link:../runner
+      '@basile/scanner-attack-surface':
+        specifier: workspace:*
+        version: link:../scanners/attack-surface
       '@basile/scanner-bearer':
         specifier: workspace:*
         version: link:../scanners/bearer
@@ -77,6 +80,9 @@ importers:
       '@basile/scanner-ssllabs-scan':
         specifier: workspace:*
         version: link:../scanners/ssllabs-scan
+      '@basile/scanner-subfinder':
+        specifier: workspace:*
+        version: link:../scanners/subfinder
       '@basile/scanner-testssl':
         specifier: workspace:*
         version: link:../scanners/testssl
@@ -86,6 +92,9 @@ importers:
       '@basile/scanner-tsc':
         specifier: workspace:*
         version: link:../scanners/tsc
+      '@basile/scanner-wafw00f-lite':
+        specifier: workspace:*
+        version: link:../scanners/wafw00f-lite
       '@basile/scanner-wpscan':
         specifier: workspace:*
         version: link:../scanners/wpscan
@@ -195,6 +204,34 @@ importers:
       listr2:
         specifier: ^8.2.5
         version: 8.3.3
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/attack-surface:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+      '@basile/scanner-headers':
+        specifier: workspace:*
+        version: link:../headers
+      '@basile/scanner-subfinder':
+        specifier: workspace:*
+        version: link:../subfinder
+      '@basile/scanner-wafw00f-lite':
+        specifier: workspace:*
+        version: link:../wafw00f-lite
     devDependencies:
       '@types/node':
         specifier: ^22.7.0
@@ -529,6 +566,25 @@ importers:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@22.19.17)
 
+  packages/scanners/subfinder:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
   packages/scanners/testssl:
     dependencies:
       '@basile/core':
@@ -568,6 +624,25 @@ importers:
         version: 2.1.9(@types/node@22.19.17)
 
   packages/scanners/tsc:
+    dependencies:
+      '@basile/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@basile/runner':
+        specifier: workspace:*
+        version: link:../../runner
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)
+
+  packages/scanners/wafw00f-lite:
     dependencies:
       '@basile/core':
         specifier: workspace:*

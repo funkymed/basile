@@ -22,6 +22,7 @@ type NucleiHit = {
 export const nucleiScanner: Scanner = {
   name: 'nuclei',
   category: 'security',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => t.type === 'url',
 

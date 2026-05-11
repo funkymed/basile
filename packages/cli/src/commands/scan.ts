@@ -12,7 +12,7 @@ import {
   ICON,
   type Recipe,
 } from '@basile/core';
-import { runScan } from '@basile/runner';
+import { runScan, ScannerRegistry, type ScannerProfile } from '@basile/runner';
 import { writeReport } from '@basile/reporter-markdown';
 import { renderPdf } from '@basile/reporter-pdf';
 import { createDefaultRegistry } from '../registry.js';
@@ -114,7 +114,13 @@ export default class Scan extends Command {
 
     // ---- Scan ----
     const startedAt = new Date();
-    const registry = createDefaultRegistry();
+    const registry = filterRegistryByProfiles(createDefaultRegistry(), this);
+    if (registry.list().length === 0) {
+      this.warn(
+        `BASILE_PROFILES filter excluded all scanners (value: "${process.env.BASILE_PROFILES}"). Nothing to run.`,
+      );
+      return;
+    }
     const result = await runScan(effectiveRecipe, registry, { outDir, ui });
     const endedAt = new Date();
 
@@ -257,4 +263,33 @@ export default class Scan extends Command {
       }
     }
   }
+}
+
+/**
+ * Filter scanners by `BASILE_PROFILES` env var (CSV of: security, accessibility, quality).
+ * Unset => return registry unchanged (backward compat). Used by basile-cloud to gate
+ * scanners per pricing tier — see RFC-017.
+ */
+function filterRegistryByProfiles(
+  registry: ScannerRegistry,
+  cmd: { warn: (msg: string) => void },
+): ScannerRegistry {
+  const raw = process.env.BASILE_PROFILES;
+  if (!raw) return registry;
+  const valid: ScannerProfile[] = ['security', 'accessibility', 'quality'];
+  const enabled = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const unknown = enabled.filter((p) => !valid.includes(p as ScannerProfile));
+  if (unknown.length > 0) {
+    cmd.warn(`BASILE_PROFILES contains unknown profile(s) (ignored): ${unknown.join(', ')}`);
+  }
+  const enabledSet = new Set(enabled.filter((p): p is ScannerProfile => valid.includes(p as ScannerProfile)));
+  if (enabledSet.size === 0) return registry;
+  const filtered = new ScannerRegistry();
+  for (const s of registry.list()) {
+    if (enabledSet.has(s.profile)) filtered.register(s);
+  }
+  return filtered;
 }

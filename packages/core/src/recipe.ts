@@ -35,7 +35,22 @@ const UrlTarget = z.object({
 });
 export type UrlTarget = z.infer<typeof UrlTarget>;
 
-export const RecipeTarget = z.discriminatedUnion('type', [CodeTarget, UrlTarget]);
+const DomainTarget = z.object({
+  id: z.string().min(1),
+  type: z.literal('domain'),
+  // Bare registrable domain (e.g. "example.com" or "example.co.uk").
+  // Subdomain input is accepted and the root will be extracted; an
+  // `input_was_subdomain` warning is surfaced in the scanner output.
+  domain: z
+    .string()
+    .min(3)
+    .regex(/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/i, 'must look like a domain (letters/digits/dots/hyphens)')
+    .refine((d) => d.includes('.'), { message: 'must contain a dot (e.g. example.com)' }),
+  scanners: z.array(z.string()).min(1),
+});
+export type DomainTarget = z.infer<typeof DomainTarget>;
+
+export const RecipeTarget = z.discriminatedUnion('type', [CodeTarget, UrlTarget, DomainTarget]);
 export type RecipeTarget = z.infer<typeof RecipeTarget>;
 
 export const ReportConfig = z.object({

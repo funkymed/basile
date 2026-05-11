@@ -9,6 +9,7 @@ const TSC_LINE_RE = /^(.+?)\((\d+),(\d+)\):\s+(error|warning)\s+(TS\d+):\s+(.+)$
 export const tscScanner: Scanner = {
   name: 'tsc',
   category: 'quality',
+  profile: 'quality',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

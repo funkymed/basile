@@ -25,7 +25,7 @@ export const Stack = z.enum([
 ]);
 export type Stack = z.infer<typeof Stack>;
 
-export const TargetType = z.enum(['code', 'url']);
+export const TargetType = z.enum(['code', 'url', 'domain']);
 export type TargetType = z.infer<typeof TargetType>;
 
 export const Finding = z.object({

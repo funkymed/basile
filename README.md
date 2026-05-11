@@ -51,7 +51,14 @@ URL target:
 basile scan --url https://example.com --scanners lighthouse,headers,zap-baseline
 ```
 
-See [`docs/examples/code-php-scan.md`](docs/examples/code-php-scan.md), [`docs/examples/code-typescript-scan.md`](docs/examples/code-typescript-scan.md), [`docs/examples/url-quick-scan.md`](docs/examples/url-quick-scan.md).
+Recon / EASM shortcuts (v0.0.7+):
+```bash
+basile subfinder example.com                   # subdomain enum
+basile waf https://example.com                 # WAF detection
+basile recon example.com                       # full attack surface
+```
+
+See [`docs/examples/code-php-scan.md`](docs/examples/code-php-scan.md), [`docs/examples/code-typescript-scan.md`](docs/examples/code-typescript-scan.md), [`docs/examples/url-quick-scan.md`](docs/examples/url-quick-scan.md), [`docs/examples/recon-scan.md`](docs/examples/recon-scan.md).
 
 ### 2. With cookbook (declarative, recommended)
 
@@ -83,6 +90,7 @@ See [`docs/examples/single-scanner.md`](docs/examples/single-scanner.md).
 | **TypeScript / React** | eslint, tsc, knip, madge, semgrep, bearer, gitleaks, trivy, cloc |
 | **Node.js** | eslint, tsc, depcheck, npm-audit, semgrep, bearer, gitleaks, trivy |
 | **Production URL** | lighthouse, pa11y, zap-baseline, nuclei, headers, ssllabs-scan, testssl |
+| **Recon / EASM** | subfinder, wafw00f-lite, attack-surface |
 | **Multi / cross-cutting** | semgrep, bearer, gitleaks, trivy, cloc |
 
 Detailed catalog (role, options): [`docs/scanners.md`](docs/scanners.md).

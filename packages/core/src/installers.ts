@@ -22,6 +22,9 @@ export const SCANNER_META: Record<string, { stacks: Stack[]; categories: Scanner
   'ssllabs-scan': { stacks: ['url'], categories: ['security'] },
   testssl: { stacks: ['url'], categories: ['security'] },
   headers: { stacks: ['url'], categories: ['security'] },
+  subfinder: { stacks: ['url'], categories: ['security', 'dast'] },
+  'wafw00f-lite': { stacks: ['url'], categories: ['security', 'dast'] },
+  'attack-surface': { stacks: ['url'], categories: ['security', 'dast'] },
   semgrep: { stacks: ['php', 'symfony', 'typescript', 'react', 'nodejs', 'wordpress'], categories: ['security', 'sast'] },
   trivy: { stacks: ['php', 'symfony', 'typescript', 'react', 'nodejs', 'wordpress'], categories: ['security', 'deps', 'secrets'] },
   gitleaks: { stacks: ['php', 'symfony', 'typescript', 'react', 'nodejs', 'wordpress'], categories: ['secrets', 'security'] },
@@ -189,6 +192,38 @@ export const REGISTRY: Record<string, InstallRecipe> = {
     preferred: 'local',
     modes: { local: {} },
     verify: { local: { cmd: 'curl', args: ['--version'] } },
+  },
+
+  // ---- Recon / EASM (RFC-002) ----
+  subfinder: {
+    scanner: 'subfinder',
+    description: 'Passive subdomain enumeration (projectdiscovery, 30+ sources)',
+    preferred: 'local',
+    modes: {
+      local: {
+        darwin: 'brew install subfinder',
+        linux: { apt: 'apt-get install -y subfinder' },
+        script: 'go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest',
+      },
+      docker: { image: 'projectdiscovery/subfinder', tag: 'latest', sizeMB: 80 },
+    },
+    verify: { local: { cmd: 'subfinder', args: ['-version'] } },
+  },
+  'wafw00f-lite': {
+    scanner: 'wafw00f-lite',
+    description: 'WAF/CDN detection (signature DB, no Python dep)',
+    preferred: 'local',
+    // Pure Node implementation — curl is the only runtime requirement.
+    modes: { local: {} },
+    verify: { local: { cmd: 'curl', args: ['--version'] } },
+  },
+  'attack-surface': {
+    scanner: 'attack-surface',
+    description: 'Composite recon: subfinder + headers + WAF + categorize (RFC-002)',
+    preferred: 'local',
+    // Composite scanner — requires subfinder + curl at runtime.
+    modes: { local: {} },
+    verify: { local: { cmd: 'subfinder', args: ['-version'] } },
   },
 
   // ---- Multi-language ----

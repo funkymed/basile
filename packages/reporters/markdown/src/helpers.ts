@@ -80,6 +80,19 @@ function count(array: unknown): number {
   return Array.isArray(array) ? array.length : 0;
 }
 
+function gradeEmoji(g: unknown): string {
+  const grade = String(g ?? '').toUpperCase();
+  if (grade === 'A+' || grade === 'A') return '🟢';
+  if (grade === 'B' || grade === 'C') return '🟡';
+  if (grade === 'D' || grade === 'E' || grade === 'F') return '🔴';
+  return '⚪';
+}
+
+function gradeBadge(g: unknown): string {
+  const grade = String(g ?? '—');
+  return `${gradeEmoji(g)} **${grade}**`;
+}
+
 const eq = (a: unknown, b: unknown): boolean => a === b;
 const gt = (a: unknown, b: unknown): boolean => Number(a) > Number(b);
 const lt = (a: unknown, b: unknown): boolean => Number(a) < Number(b);
@@ -107,6 +120,8 @@ export function registerHelpers(
   hb.registerHelper('lt', lt);
   hb.registerHelper('upper', (s: unknown) => String(s ?? '').toUpperCase());
   hb.registerHelper('json', (v: unknown) => JSON.stringify(v, null, 2));
+  hb.registerHelper('gradeEmoji', gradeEmoji);
+  hb.registerHelper('gradeBadge', gradeBadge);
 }
 
 export const helpers = {
@@ -122,4 +137,6 @@ export const helpers = {
   eq,
   gt,
   lt,
+  gradeEmoji,
+  gradeBadge,
 };

@@ -1,6 +1,6 @@
 # Scanner catalog
 
-22 scanners grouped by category. Source of truth: [`packages/cli/src/registry.ts`](../packages/cli/src/registry.ts).
+25 scanners grouped by category. Source of truth: [`packages/cli/src/registry.ts`](../packages/cli/src/registry.ts).
 
 Mode legend: **L** = local (requires system binary) — **D** = Docker (auto-pulled image) — **H** = hybrid (`execHybrid`: local, fallback to Docker).
 
@@ -47,6 +47,24 @@ Mode legend: **L** = local (requires system binary) — **D** = Docker (auto-pul
 |---------|--------|------|------|
 | `zap-baseline` | url | D | OWASP ZAP passive mode (non-intrusive baseline scan). |
 | `nuclei` | url | H | Template-based scanner (CVEs, misconfigurations, exposures). |
+
+## Recon / External Attack Surface (EASM)
+
+See [RFC-002](rfc/RFC-002-recon-scanners.md) for the full specification.
+
+| Scanner | Stacks | Mode | Role |
+|---------|--------|------|------|
+| `subfinder` | url, domain | H | Passive subdomain enumeration (projectdiscovery, multi-source). Auto-extracts root domain (compound TLD aware: `co.uk`, `com.br`, ...). |
+| `wafw00f-lite` | url | L | WAF / CDN detection via header + cookie + body signatures. 24 vendors covered (Cloudflare, AWS WAF, Akamai, Imperva, Fastly, ...). Optional `aggressive` mode. |
+| `attack-surface` | url, domain | H | Composite EASM orchestrator: enum → probe alive → grade headers → detect WAF → categorize hosts (app / api / admin / dev / staging / internal). Emits `attack_surface.*` findings. |
+
+Usage:
+```bash
+basile scan --recipe cookbook.yaml           # via cookbook (see examples/recon-scan.md)
+basile subfinder example.com                 # shortcut: enum only
+basile waf https://example.com               # shortcut: WAF only
+basile recon example.com                     # shortcut: full pipeline
+```
 
 ## Performance / accessibility / headers / TLS
 

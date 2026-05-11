@@ -14,6 +14,7 @@ type Pa11yIssue = {
 export const pa11yScanner: Scanner = {
   name: 'pa11y',
   category: 'a11y',
+  profile: 'accessibility',
 
   supports: (t: RecipeTarget): boolean => t.type === 'url',
 

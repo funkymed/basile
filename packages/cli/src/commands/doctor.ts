@@ -6,6 +6,7 @@ import {
   listKnownScanners,
   theme,
   verifyMany,
+  which,
   ICON,
 } from '@basile/core';
 import { printBanner } from '../ui/banner.js';
@@ -53,5 +54,32 @@ export default class Doctor extends Command {
     const ready = statuses.filter((s) => s.ready).length;
     const total = statuses.length;
     process.stdout.write(`\n${theme.dim(`${ready}/${total} scanners ready`)}\n`);
+
+    // Recon (RFC-002) — host-binary checks for the shortcut commands
+    // (`subfinder`, `waf`, `recon`). These bypass the docker fallback so we
+    // surface them separately from the scanner registry table.
+    const reconBins = [
+      { name: 'subfinder', purpose: 'subdomain enumeration' },
+      { name: 'curl', purpose: 'HTTP probing' },
+      { name: 'jq', purpose: 'JSON post-processing (optional)' },
+    ];
+    const reconLines = reconBins.map((b) => {
+      const found = which(b.name) !== null;
+      const icon = found
+        ? theme.success(ICON.ok)
+        : b.name === 'jq'
+          ? theme.warn(ICON.warn)
+          : theme.error(ICON.fail);
+      return `${icon} ${theme.bold(b.name.padEnd(10))} ${theme.dim(b.purpose)}`;
+    });
+    process.stdout.write(
+      `\n${boxen(reconLines.join('\n'), {
+        title: 'Recon (RFC-002)',
+        titleAlignment: 'left',
+        padding: 1,
+        borderStyle: 'round',
+        borderColor: 'cyan',
+      })}\n`,
+    );
   }
 }

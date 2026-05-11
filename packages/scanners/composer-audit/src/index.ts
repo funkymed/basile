@@ -31,6 +31,7 @@ const SUPPORTED_STACKS = new Set(['php', 'symfony']);
 export const composerAuditScanner: Scanner = {
   name: 'composer-audit',
   category: 'deps',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

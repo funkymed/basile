@@ -6,6 +6,7 @@ import type { Finding, Recipe, Severity } from '@basile/core';
 import { SEVERITY_ORDER, listScannersInRecipe } from '@basile/core';
 import { aggregate } from './aggregate.js';
 import { registerHelpers } from './helpers.js';
+import { extractAttackSurface } from './attack-surface.js';
 import type { CoverageGap, ReportContext, ReportSummary, RunMeta } from './types.js';
 
 const templateCache = new Map<string, HandlebarsTemplateDelegate>();
@@ -93,7 +94,12 @@ export async function writeReport(
   // 3. exclude_rules: drop findings matching rule glob list
   const { visible, hidden } = applyReportFilters(findings, recipe, opts.full ?? false);
 
-  const summary = aggregate(visible, {
+  // Extract Attack Surface section (if scanner emitted a summary finding).
+  // The summary finding itself is removed from the visible list so it does not get
+  // double-rendered as a generic bullet; per-host risk findings remain.
+  const { section: attackSurface, findings: visibleAfterAS } = extractAttackSurface(visible);
+
+  const summary = aggregate(visibleAfterAS, {
     ...(opts.scoreThreshold !== undefined ? { scoreThreshold: opts.scoreThreshold } : {}),
     ...(opts.warnThreshold !== undefined ? { warnThreshold: opts.warnThreshold } : {}),
   });
@@ -115,11 +121,12 @@ export async function writeReport(
 
   const ctx: ReportContext = {
     recipe,
-    findings: visible,
+    findings: visibleAfterAS,
     runMeta,
     gaps,
     generatedAt,
     summary,
+    ...(attackSurface ? { attackSurface } : {}),
   };
   // Surface filter info to templates (count + reason).
   (ctx as ReportContext & { filteredOut?: number; filterReason?: string }).filteredOut = hidden.length;

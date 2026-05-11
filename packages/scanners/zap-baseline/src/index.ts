@@ -21,6 +21,7 @@ type ZapReport = { site?: ZapSite[] };
 export const zapBaselineScanner: Scanner = {
   name: 'zap-baseline',
   category: 'security',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => t.type === 'url',
 

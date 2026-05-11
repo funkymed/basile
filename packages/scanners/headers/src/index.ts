@@ -4,6 +4,7 @@ import type { Scanner } from '@basile/runner';
 export const headersScanner: Scanner = {
   name: 'headers',
   category: 'security',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => t.type === 'url',
 

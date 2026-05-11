@@ -17,6 +17,7 @@ type SslLabsReport = {
 export const ssllabsScanner: Scanner = {
   name: 'ssllabs-scan',
   category: 'security',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => t.type === 'url',
 

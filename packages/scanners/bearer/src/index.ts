@@ -25,6 +25,7 @@ const SUPPORTED_STACKS = new Set(['php', 'symfony', 'typescript', 'react', 'node
 export const bearerScanner: Scanner = {
   name: 'bearer',
   category: 'privacy',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

@@ -34,6 +34,34 @@
 
 > Détail des findings avec mapping OWASP plus bas.
 
+{{#if attackSurface}}
+## Attack Surface
+
+- Root domain : `{{attackSurface.rootDomain}}`
+- Subdomains : {{attackSurface.metrics.subdomains_alive}} alive / {{attackSurface.metrics.subdomains_total}} found
+- Global grade : {{gradeBadge attackSurface.metrics.grade_global}}
+- WAF coverage : {{attackSurface.metrics.waf_coverage_pct}}%
+{{#if (gt attackSurface.metrics.exposed_dev_count 0)}}- Exposed dev/staging hosts : **{{attackSurface.metrics.exposed_dev_count}}**
+{{/if}}{{#if (gt attackSurface.metrics.exposed_internal_count 0)}}- Exposed internal hosts : **{{attackSurface.metrics.exposed_internal_count}}**
+{{/if}}
+
+{{#if attackSurface.inventory.length}}
+### Inventory
+
+| Host | Category | Status | Grade | WAF |
+|------|----------|-------:|-------|-----|
+{{#each attackSurface.inventory}}| `{{this.host}}` | {{this.category}} | {{this.status}} | {{gradeBadge this.grade}} | {{#if this.waf}}{{this.waf}}{{else}}—{{/if}} |
+{{/each}}
+{{/if}}
+
+{{#if attackSurface.risks.length}}
+### Risks identified
+
+{{#each attackSurface.risks}}- {{severityBadge this.severity}} {{this.message}}
+{{/each}}
+{{/if}}
+
+{{/if}}
 {{#if gaps.length}}
 ## Coverage gaps
 

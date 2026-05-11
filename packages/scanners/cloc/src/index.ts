@@ -10,6 +10,7 @@ type ClocReport = Record<string, ClocLangStats | unknown> & {
 export const clocScanner: Scanner = {
   name: 'cloc',
   category: 'quality',
+  profile: 'quality',
 
   supports: (t: RecipeTarget): boolean => t.type === 'code',
 

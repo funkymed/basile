@@ -20,6 +20,7 @@ const SUPPORTED_STACKS = new Set(['php', 'symfony']);
 export const phpstanScanner: Scanner = {
   name: 'phpstan',
   category: 'quality',
+  profile: 'quality',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

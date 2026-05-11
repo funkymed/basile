@@ -22,6 +22,7 @@ const SUPPORTED_STACKS = new Set(['php', 'symfony', 'typescript', 'react', 'node
 export const semgrepScanner: Scanner = {
   name: 'semgrep',
   category: 'security',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

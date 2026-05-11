@@ -47,6 +47,7 @@ function mapSeverity(s: string): Severity {
 export const npmAuditScanner: Scanner = {
   name: 'npm-audit',
   category: 'deps',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

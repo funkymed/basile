@@ -15,6 +15,7 @@ type GitleaksLeak = {
 export const gitleaksScanner: Scanner = {
   name: 'gitleaks',
   category: 'secrets',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => t.type === 'code',
 

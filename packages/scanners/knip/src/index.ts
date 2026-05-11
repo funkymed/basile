@@ -23,6 +23,7 @@ type KnipReport = {
 export const knipScanner: Scanner = {
   name: 'knip',
   category: 'quality',
+  profile: 'quality',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

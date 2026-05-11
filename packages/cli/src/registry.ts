@@ -21,6 +21,9 @@ import { nucleiScanner } from '@basile/scanner-nuclei';
 import { headersScanner } from '@basile/scanner-headers';
 import { ssllabsScanner } from '@basile/scanner-ssllabs-scan';
 import { testsslScanner } from '@basile/scanner-testssl';
+import { subfinderScanner } from '@basile/scanner-subfinder';
+import { wafw00fLiteScanner } from '@basile/scanner-wafw00f-lite';
+import { attackSurfaceScanner } from '@basile/scanner-attack-surface';
 
 /**
  * Default scanner registry assembled from all bundled scanner packages.
@@ -50,5 +53,9 @@ export function createDefaultRegistry(): ScannerRegistry {
   registry.register(headersScanner);
   registry.register(ssllabsScanner);
   registry.register(testsslScanner);
+  // Recon / EASM (RFC-002)
+  registry.register(subfinderScanner);
+  registry.register(wafw00fLiteScanner);
+  registry.register(attackSurfaceScanner);
   return registry;
 }

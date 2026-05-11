@@ -1,7 +1,9 @@
 import { Command, Flags } from '@oclif/core';
 import Table from 'cli-table3';
 import { listKnownScanners, REGISTRY, theme } from '@basile/core';
+import type { ScannerProfile } from '@basile/runner';
 import { printBanner } from '../ui/banner.js';
+import { createDefaultRegistry } from '../registry.js';
 
 type Group = 'php' | 'js' | 'web' | 'universal' | 'wordpress';
 
@@ -61,8 +63,27 @@ export default class ListScanners extends Command {
       await printBanner();
     }
 
+    // Honor BASILE_PROFILES env var: filter listing to scanners whose profile matches.
+    const profilesEnv = process.env.BASILE_PROFILES;
+    const enabledProfiles: Set<ScannerProfile> | null = profilesEnv
+      ? new Set(
+          profilesEnv
+            .split(',')
+            .map((s) => s.trim())
+            .filter((p): p is ScannerProfile =>
+              p === 'security' || p === 'accessibility' || p === 'quality',
+            ),
+        )
+      : null;
+    const profileByName = new Map<string, ScannerProfile>();
+    for (const s of createDefaultRegistry().list()) profileByName.set(s.name, s.profile);
+
     const groups = new Map<Group, string[]>();
     for (const name of listKnownScanners()) {
+      if (enabledProfiles) {
+        const prof = profileByName.get(name);
+        if (!prof || !enabledProfiles.has(prof)) continue;
+      }
       const g = CATEGORY_MAP[name] ?? 'universal';
       const arr = groups.get(g) ?? [];
       arr.push(name);

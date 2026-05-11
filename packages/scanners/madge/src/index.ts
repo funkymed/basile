@@ -6,6 +6,7 @@ const SUPPORTED_STACKS = new Set(['typescript', 'react', 'nodejs']);
 export const madgeScanner: Scanner = {
   name: 'madge',
   category: 'quality',
+  profile: 'quality',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

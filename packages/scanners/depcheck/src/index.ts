@@ -13,6 +13,7 @@ type DepcheckReport = {
 export const depcheckScanner: Scanner = {
   name: 'depcheck',
   category: 'deps',
+  profile: 'quality',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

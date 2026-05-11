@@ -1,5 +1,6 @@
 import type { Category, Finding, Severity } from '@basile/core';
 import type { Recipe } from '@basile/core';
+import type { AttackSurfaceSection } from './attack-surface.js';
 
 export type RunMeta = {
   recipeName: string;
@@ -27,6 +28,8 @@ export type ReportContext = {
   filteredOut?: number;
   /** Human-readable reason explaining the filter behavior. */
   filterReason?: string;
+  /** Structured Attack Surface section, present only when `attack-surface` scanner emitted a summary. */
+  attackSurface?: AttackSurfaceSection;
 };
 
 export type ReportSummary = {

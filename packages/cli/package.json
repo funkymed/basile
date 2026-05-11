@@ -1,6 +1,6 @@
 {
   "name": "@basile/cli",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "private": true,
   "type": "module",
   "description": "BASILE CLI — multi-stack audit runner",
@@ -83,6 +83,9 @@
     "@basile/scanner-headers": "workspace:*",
     "@basile/scanner-ssllabs-scan": "workspace:*",
     "@basile/scanner-testssl": "workspace:*",
+    "@basile/scanner-subfinder": "workspace:*",
+    "@basile/scanner-wafw00f-lite": "workspace:*",
+    "@basile/scanner-attack-surface": "workspace:*",
     "@clack/prompts": "^0.7.0",
     "@oclif/core": "^4.0.0",
     "boxen": "^8.0.1",

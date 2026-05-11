@@ -28,6 +28,7 @@ const SUPPORTED_STACKS = new Set(['php', 'symfony', 'wordpress']);
 export const phpcsScanner: Scanner = {
   name: 'phpcs',
   category: 'quality',
+  profile: 'quality',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

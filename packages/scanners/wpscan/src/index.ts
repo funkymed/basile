@@ -33,6 +33,7 @@ type WpscanReport = {
 export const wpscanScanner: Scanner = {
   name: 'wpscan',
   category: 'security',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type === 'url') return true;

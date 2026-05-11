@@ -19,6 +19,7 @@ const SUPPORTED_STACKS = new Set(['typescript', 'react', 'nodejs']);
 export const eslintScanner: Scanner = {
   name: 'eslint',
   category: 'quality',
+  profile: 'quality',
 
   supports: (t: RecipeTarget): boolean => {
     if (t.type !== 'code') return false;

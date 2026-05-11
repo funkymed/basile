@@ -41,6 +41,7 @@ type TrivyReport = { Results?: TrivyResult[] };
 export const trivyScanner: Scanner = {
   name: 'trivy',
   category: 'security',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => t.type === 'code',
 

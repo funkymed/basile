@@ -19,6 +19,7 @@ type Lhr = {
 export const lighthouseScanner: Scanner = {
   name: 'lighthouse',
   category: 'performance',
+  profile: 'accessibility',
 
   supports: (t: RecipeTarget): boolean => t.type === 'url',
 

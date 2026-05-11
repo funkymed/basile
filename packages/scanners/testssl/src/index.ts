@@ -18,6 +18,7 @@ type TestSslEntry = {
 export const testsslScanner: Scanner = {
   name: 'testssl',
   category: 'security',
+  profile: 'security',
 
   supports: (t: RecipeTarget): boolean => t.type === 'url',
 

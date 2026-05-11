@@ -35,7 +35,6 @@ templates/                 # executive.hbs, technical.hbs, security.hbs
 recipes/examples/          # sample cookbooks
 docs/                      # user docs
 docs/internal/             # maintainer docs
-docs/rfc/                  # RFCs
 scripts/pack.mjs           # self-contained CLI bundle (npx)
 ```
 
@@ -92,18 +91,10 @@ PHP / Ruby / Java → Docker by default. JS / brew tools → local.
 ## Conventions
 
 - **Code**: English (variables, comments). **UI / CLI strings**: French (i18n).
-- **Branches**: `feat/rfc-XXX`, `fix/scanner-<name>-<bug>`
-- **Commits**: `feat(rfc-XXX): ...`, `fix(scanner-X): ...`, `docs: ...`
+- **Branches**: `feat/*`, `fix/scanner-<name>-<bug>`
+- **Commits**: `feat(*): ...`, `fix(scanner-X): ...`, `docs: ...`
 - TS strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes`
 - No local Docker except for non-iso scanners (PHP, ZAP, wpscan)
-
-## RFCs
-
-Major specs live in `docs/rfc/RFC-XXX-<slug>.md`. Reference them in commits + branch names.
-
-| ID | Title | Status |
-|----|-------|--------|
-| RFC-001 | Multi-stack audit | in progress |
 
 ## Release & npm publish
 

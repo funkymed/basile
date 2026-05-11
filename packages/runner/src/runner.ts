@@ -26,7 +26,9 @@ type Ctx = {
 };
 
 function targetIdentifier(target: RecipeTarget): string {
-  return target.type === 'code' ? `${target.id} (${target.path})` : `${target.id} (${target.url})`;
+  if (target.type === 'code') return `${target.id} (${target.path})`;
+  if (target.type === 'domain') return `${target.id} (${target.domain})`;
+  return `${target.id} (${target.url})`;
 }
 
 function targetSlug(target: RecipeTarget): string {
