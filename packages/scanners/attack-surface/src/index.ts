@@ -63,10 +63,16 @@ export const attackSurfaceScanner: Scanner = {
     // Always include the root domain itself for completeness.
     if (!candidates.includes(root)) candidates.unshift(root);
 
-    // 2. Probe alive + per-host audit (parallel, capped)
-    const reports = await runParallel(candidates, PROBE_CONCURRENCY, (host) =>
-      probeHost(host, root),
-    );
+    // 2. Probe alive + per-host audit (parallel, capped). Per-host failures
+    // (DNS NXDOMAIN, timeouts, TLS errors) are swallowed so one bad subdomain
+    // never aborts the entire run.
+    const reports = await runParallel(candidates, PROBE_CONCURRENCY, async (host) => {
+      try {
+        return await probeHost(host, root);
+      } catch {
+        return null;
+      }
+    });
     const alive = reports.filter((r): r is HostReport => r !== null);
 
     const metrics = computeMetrics(alive, candidates.length, Date.now() - startedAt);
@@ -75,51 +81,90 @@ export const attackSurfaceScanner: Scanner = {
   },
 };
 
+/**
+ * curl exit codes tolerated during probing — a failure on a single host must
+ * never abort the entire scan. Every non-zero exit just means "this scheme
+ * didn't reach a usable response", we move on to the next scheme or host.
+ *
+ * Selected codes (full list: https://curl.se/libcurl/c/libcurl-errors.html):
+ *   0  success
+ *   3  malformed URL (defensive)
+ *   5  couldn't resolve proxy
+ *   6  couldn't resolve host  ← DNS NXDOMAIN, common for stale subfinder hits
+ *   7  failed to connect
+ *   22 HTTP returned error (with -f, not used here, but tolerated)
+ *   23 write error
+ *   26 read error
+ *   28 operation timeout
+ *   35 SSL connect error
+ *   45 interface failed
+ *   47 too many redirects
+ *   52 server returned nothing
+ *   55 send failure
+ *   56 recv failure
+ *   60 SSL CA cert verify failed
+ *   77 problem with SSL CA cert
+ */
+const CURL_TOLERATED_EXITS: readonly number[] = [
+  0, 3, 5, 6, 7, 22, 23, 26, 28, 35, 45, 47, 52, 55, 56, 60, 77,
+];
+
 export async function probeHost(host: string, root: string): Promise<HostReport | null> {
   // Try HTTPS first, fallback HTTP. Skip if neither is reachable.
   for (const scheme of ['https', 'http'] as const) {
     const url = `${scheme}://${host}`;
-    const headRes = await exec(
-      [
-        'curl',
-        '--silent',
-        '--insecure',
-        '--max-time',
-        String(Math.ceil(PROBE_TIMEOUT_MS / 1000)),
-        '--connect-timeout',
-        '3',
-        '--output',
-        '/dev/null',
-        '--write-out',
-        '%{http_code}|%{header_json}',
-        '-I',
-        url,
-      ],
-      { timeoutMs: PROBE_TIMEOUT_MS + 2_000, okExitCodes: [0, 22, 28, 56] },
-    );
+    let headRes;
+    try {
+      headRes = await exec(
+        [
+          'curl',
+          '--silent',
+          '--insecure',
+          '--max-time',
+          String(Math.ceil(PROBE_TIMEOUT_MS / 1000)),
+          '--connect-timeout',
+          '3',
+          '--output',
+          '/dev/null',
+          '--write-out',
+          '%{http_code}|%{header_json}',
+          '-I',
+          url,
+        ],
+        { timeoutMs: PROBE_TIMEOUT_MS + 2_000, okExitCodes: [...CURL_TOLERATED_EXITS] },
+      );
+    } catch {
+      // Any unexpected curl exit code or runtime error → skip this scheme.
+      continue;
+    }
 
     const [codeStr] = headRes.stdout.split('|', 1);
     const status = Number.parseInt(codeStr ?? '0', 10);
     if (!status || status === 0) continue;
 
     // Full HEAD response for header grading + WAF detection
-    const fullHead = await exec(
-      [
-        'curl',
-        '--silent',
-        '--insecure',
-        '--max-time',
-        '5',
-        '--connect-timeout',
-        '3',
-        '--user-agent',
-        'basile-recon/1.0',
-        '-I',
-        '-L',
-        url,
-      ],
-      { timeoutMs: PROBE_TIMEOUT_MS + 2_000, okExitCodes: [0, 22, 28, 56] },
-    );
+    let fullHead;
+    try {
+      fullHead = await exec(
+        [
+          'curl',
+          '--silent',
+          '--insecure',
+          '--max-time',
+          '5',
+          '--connect-timeout',
+          '3',
+          '--user-agent',
+          'basile-recon/1.0',
+          '-I',
+          '-L',
+          url,
+        ],
+        { timeoutMs: PROBE_TIMEOUT_MS + 2_000, okExitCodes: [...CURL_TOLERATED_EXITS] },
+      );
+    } catch {
+      continue;
+    }
     const headerText = fullHead.stdout;
     const grading = gradeHeaders(headerText);
     const wafMatches = matchSignatures(headerText);

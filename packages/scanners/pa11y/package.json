@@ -1,6 +1,6 @@
 {
   "name": "@basile/scanner-pa11y",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
