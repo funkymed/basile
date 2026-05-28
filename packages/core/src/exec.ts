@@ -171,10 +171,22 @@ export type HybridSpec = {
   localArgs: string[];
   docker: DockerRunSpec;
   exec?: ExecOptions;
+  /** Force Docker execution even if local binary is found. */
+  forceDocker?: boolean;
 };
 
+function shouldForceDocker(localBin: string): boolean {
+  const globalForce = process.env.BASILE_FORCE_DOCKER;
+  if (globalForce === '1' || globalForce === 'true') return true;
+  const perTool = process.env[`BASILE_FORCE_DOCKER_${localBin.toUpperCase().replace(/[^A-Z0-9]/g, '_')}`];
+  if (perTool === '1' || perTool === 'true') return true;
+  return false;
+}
+
 export async function execHybrid(spec: HybridSpec): Promise<ExecResult & { mode: 'local' | 'docker' }> {
-  if (which(spec.localBin)) {
+  const forceDocker = spec.forceDocker || shouldForceDocker(spec.localBin);
+
+  if (!forceDocker && which(spec.localBin)) {
     const result = await exec([spec.localBin, ...spec.localArgs], spec.exec);
     return { ...result, mode: 'local' };
   }
