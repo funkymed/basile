@@ -267,7 +267,7 @@ export const REGISTRY: Record<string, InstallRecipe> = {
   bearer: {
     scanner: 'bearer',
     description: 'Privacy/PII + security SAST',
-    preferred: 'local',
+    preferred: 'docker',
     modes: {
       local: {
         darwin: 'brew install bearer/tap/bearer',
@@ -275,7 +275,10 @@ export const REGISTRY: Record<string, InstallRecipe> = {
       },
       docker: { image: 'bearer/bearer', tag: 'latest-amd64', sizeMB: 500 },
     },
-    verify: { local: { cmd: 'bearer', args: ['version'] } },
+    verify: {
+      local: { cmd: 'bearer', args: ['version'] },
+      docker: { image: 'bearer/bearer', tag: 'latest-amd64' },
+    },
   },
   cloc: {
     scanner: 'cloc',

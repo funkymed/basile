@@ -63,6 +63,9 @@ ok "From $CURRENT → $VERSION"
 step "pnpm install"
 pnpm install --frozen-lockfile=false
 
+step "pnpm -r build (pre-typecheck — generate dist/ for workspace deps)"
+pnpm -r build
+
 step "pnpm -r typecheck"
 pnpm -r typecheck
 
